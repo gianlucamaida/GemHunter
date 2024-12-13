@@ -1,0 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap');
+
+
+.map-page {
+  font-family: 'Oswald', sans-serif; /* Font in stile gioco retrò */
+
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: relative; /* Necessario per posizionare il bottone sopra la mappa */
+}
+
+/* Contenitore per la mappa */
+.leaflet-container {
+  flex-grow: 1; /* La mappa prende il resto dello spazio disponibile */
+  position: relative;
+  z-index: 1; /* Mappa sotto il bottone */
+}
+
+/* Stile per il bottone Start Hunt */
+.start-hunt-button {
+  position: absolute; /* Posiziona il bottone in modo assoluto */
+  bottom: 20px; /* Spazio di 20px dal fondo */
+  left: 50%; /* Centra orizzontalmente */
+  transform: translateX(-50%); /* Compensa la larghezza del bottone per centrarlo */
+  padding: 10px 20px;
+  font-size: 18px;
+  color: white;
+  background-color: #5c26c2; /* Colore viola per il bottone */
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  z-index: 10; /* Garantisce che il bottone sia sopra la mappa */
+}
+
+.start-hunt-button:hover {
+  background-color: #5c26c2; /* Un viola più scuro per il hover */
+}

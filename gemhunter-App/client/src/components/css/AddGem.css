@@ -1,0 +1,48 @@
+.add-gem {
+    text-align: center;
+    padding: 70px;
+  }
+  
+  .camera-container {
+    position: relative;
+    margin-bottom: 20px;
+  }
+  
+  .camera-container video {
+    border: 2px solid #333;
+    border-radius: 10px;
+  }
+  
+  .camera-container button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background-color: #3d5e17;
+    color: white;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .camera-container button:hover {
+    background-color: #8bc34a;
+  }
+  
+  .modal-content {
+    text-align: center;
+  }
+  
+  .captured-photo {
+    width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+    border-radius: 10px;
+  }
+  
+  .modal-content button {
+    margin-top: 10px;
+  }
+  
