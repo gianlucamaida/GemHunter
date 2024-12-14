@@ -1,0 +1,94 @@
+.profile-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    margin-top: 70px;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  
+  .profile-card {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .profile-avatar {
+    margin-bottom: 15px;
+  }
+  
+  .avatar-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #007bff;
+    display: block;
+    margin: 0 auto 10px;
+  }
+  
+  .user-name {
+    font-size: 1.5em;
+    color: #333;
+    margin-top: 10px;
+  }
+  
+  .user-email {
+    font-size: 1.2em;
+    color: #555;
+    margin-top: 5px;
+  }
+  
+  .edit-button,
+  .save-button,
+  .cancel-button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .edit-button {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .save-button {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .cancel-button {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .edit-button:hover,
+  .save-button:hover,
+  .cancel-button:hover {
+    opacity: 0.9;
+  }
+  
+  .profile-form .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .profile-form label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .profile-form input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  

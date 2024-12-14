@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents,useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
@@ -8,6 +8,7 @@ import "./css/CreateItinerary.css";
 import API from "../API.mjs";
 import characterIcon from "../icons/icon_walking_Man.png";
 import gemmaIcon from "../icons/gemma_icon.webp";
+import "leaflet-routing-machine";
 
 const CreateItinerary = ({position}) => {
   const [formData, setFormData] = useState({
@@ -20,7 +21,56 @@ const CreateItinerary = ({position}) => {
   const [isLoading, setIsLoading] = useState(true);
   const [showMap, setShowMap] = useState(false); // Stato per controllare la visualizzazione della mappa
   const [attractions, setAttractions] = useState([]); // Stato per le attrazioni
+  const [routeControl,setRouteControl] = useState(null); //Stato per controllare il routing
 
+
+  const handleAttractionClick = (attraction, map) => {
+    console.log("Attrazione cliccata:", attraction);
+  
+    // Rimuovi il percorso precedente (se esiste)
+    if (routeControl) {
+      routeControl.remove();
+    }
+  
+    // Aggiungi il nuovo percorso
+    const newRouteControl = L.Routing.control({
+      waypoints: [
+        L.latLng(formData.location.lat, formData.location.lng), // Posizione attuale
+        L.latLng(attraction.lat, attraction.lon), // Posizione dell'attrazione
+      ],
+      routeWhileDragging: true, // Mostra la rotta mentre trascini
+      createMarker: () => null, // Disabilita i marker per i waypoints
+      showAlternatives: false, // Disabilita le alternative
+      addWaypoints: false, // Disabilita l'aggiunta di nuovi waypoint
+      lineOptions: {
+        styles: [{ color: 'blue', weight: 4, opacity: 0.7 }] // Personalizza lo stile della linea
+      },
+    }).addTo(map);
+  
+    // Forza la rimozione del pannello delle direzioni dal DOM
+    const routingContainer = document.querySelector('.leaflet-routing-container');
+    if (routingContainer) {
+      routingContainer.style.display = 'none'; // Nascondi il pannello
+    }
+  
+    setRouteControl(newRouteControl);
+  };
+
+
+  const MapInteractionHandler = ({ onAttractionClick }) => {
+    const map = useMap(); // Ottieni la mappa corrente
+  
+    return (
+      <>
+        {attractions.map((attraction, index) => (
+        <div key={index}> {/* Usa l'indice come fallback, ma non è l'ideale */}
+           {renderMarker(attraction, (attr) => onAttractionClick(attr, map))}
+        </div>
+      ))}
+      </>
+    );
+  };
+  
   // Ottenere la posizione corrente all'avvio
   useEffect(() => {
     if (navigator.geolocation) {
@@ -81,47 +131,37 @@ const CreateItinerary = ({position}) => {
     setShowMap(true); // Cambia lo stato per mostrare la mappa
   };
 
-  const MapClickHandler = () => {
-    const map = useMapEvents({
+  const MapClickHandler = ({setFormData}) => {
+    useMapEvents({
       click: (e) => {
         setFormData((prevData) => ({
           ...prevData,
           location: { lat: e.latlng.lat, lng: e.latlng.lng },
         }));
-        map.flyTo(e.latlng, map.getZoom());
       },
     });
     return null;
   };
 
-  const renderMarker = (attraction) => {
-    if (attraction.isGem === 1) {
-      // Se isGem è 1, crea un'ellisse
-      const icon = L.icon({
-        iconUrl: gemmaIcon, // Percorso dell'icona
-        iconSize: [32, 32], // Imposta le dimensioni dell'icona
-        iconAnchor: [16, 32], // Ancoraggio per la posizione dell'icona
-        popupAnchor: [0, -32] // Ancoraggio per il popup
-      });
 
-      return (
-        <Marker position={[attraction.lat, attraction.lon]} icon={icon}>
-        </Marker>
-      );
-    } else {
-      // Se isGem è 0, usa l'icona
-      const icon = L.icon({
-        iconUrl: attraction.icon, // Percorso dell'icona
-        iconSize: [32, 32], // Imposta le dimensioni dell'icona
-        iconAnchor: [16, 32], // Ancoraggio per la posizione dell'icona
-        popupAnchor: [0, -32] // Ancoraggio per il popup
-      });
-
-      return (
-        <Marker position={[attraction.lat, attraction.lon]} icon={icon}>
-        </Marker>
-      );
-    }
+  const renderMarker = (attraction, onClick) => {
+    const icon = L.icon({
+      iconUrl: attraction.isGem === 1 ? gemmaIcon : attraction.icon, // Usa l'icona corretta
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  
+    return (
+      <Marker
+        position={[attraction.lat, attraction.lon]}
+        icon={icon}
+        eventHandlers={{
+          click: () => onClick(attraction), // Passa l'attraction al callback
+        }}
+      >
+      </Marker>
+    );
   };
 
   if (isLoading) {
@@ -181,7 +221,7 @@ const CreateItinerary = ({position}) => {
               >
                 <TileLayer
                   url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}"/>
-                <MapClickHandler />
+                <MapClickHandler setFormData={setFormData}  />
                 <Marker position={[formData.location.lat, formData.location.lng]} />
               </MapContainer>
             </div>
@@ -201,6 +241,9 @@ const CreateItinerary = ({position}) => {
             zoomControl={false}
           >
             <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}" />
+
+            {/*Posizionamento attrazioni */}
+            <MapInteractionHandler onAttractionClick={handleAttractionClick}/>
             {/* Posiziona l'omino sulla posizione attuale */}
             <Marker position={position} icon={new L.Icon({
                 iconUrl: characterIcon, // Usa l'icona personalizzata
@@ -211,12 +254,6 @@ const CreateItinerary = ({position}) => {
                 shadowSize: [41, 41],
                 })}>
             </Marker>
-            {/* Posiziona le attrazioni sulla mappa */}
-            {attractions.map((attraction) => (
-              <div key={attraction.id}>
-                {renderMarker(attraction)}
-              </div>
-            ))}
           </MapContainer>
         </div>
       )}

@@ -7,25 +7,30 @@ const FreeRoamPage = ({position,attractions}) => {
   // Se la posizione è nulla, non renderizzare la mappa
   const [selectedAttraction, setSelectedAttraction] = useState(null);
   const [showCard,setShowCard] = useState(false);
+  
 
   if (!position) {
     return <div>Loading...</div>;
   }
 
   const handleAttractionClick = (attraction) => {
+    console.log("Attraction clicked:", attraction);
     if(attraction.isFound ===1){
       //Se isFound allora c'è il Popup della carta
       setShowCard(true);
       setSelectedAttraction(attraction);
+    } else {
+      console.log("Attraction not found or isFound is not 1");
     }
   }
 
-  const closeModal = () => {ì
+  const closeModal = () => {
     setShowCard(false);
     setSelectedAttraction(null);
   };
 
   const renderMarker = (attraction) => {
+    console.log(attraction);
     if (attraction.isGem === 1) {
       // Se isGem è 1, crea un'ellisse
       return (
@@ -49,7 +54,9 @@ const FreeRoamPage = ({position,attractions}) => {
       });
 
       return (
-        <Marker position={[attraction.lat, attraction.lon]} icon={icon} onClick={handleAttractionClick(attraction)}>
+        <Marker position={[attraction.lat, attraction.lon]} icon={icon} eventHandlers={{
+          click: () => handleAttractionClick(attraction),
+        }}>
         </Marker>
       );
     }
@@ -76,7 +83,8 @@ const FreeRoamPage = ({position,attractions}) => {
             iconSize: [34, 34], // Imposta la dimensione dell'icona
             iconAnchor: [16, 32], // Imposta l'ancora dell'icona
             popupAnchor: [0, -32], // Sposta il popup sopra l'icona
-          })}>
+          
+          })} >
           </Marker>
         )}
     </MapContainer>
