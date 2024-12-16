@@ -64,6 +64,31 @@ async function getItinerary(time, n_attractions, n_gems, ini_lat, ini_lon) {
     }
 }
 
+async function updateAttraction(id) {
+    try {
+        const response = await fetch('/api/setFound', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id })
+        });
 
-const API = {getAttractions, addGem, getItinerary};
+        if (!response.ok) {
+            // Gestisce errori HTTP
+            const errorDetails = await response.json();
+            throw new Error(`Server responded with status ${response.status}: ${errorDetails.error}`);
+        }
+
+        // Se tutto va bene, restituisce il risultato
+        const result = await response.json();
+        console.log('Attraction updated successfully:', result);
+        return result;
+    } catch (err) {
+        console.error('Error updating attraction:', err);
+        throw err; // Propaga l'errore
+    }
+}
+
+const API = {getAttractions, addGem, getItinerary,updateAttraction};
 export default API;

@@ -117,5 +117,22 @@ export default function GemDAO(){
                 }
             });
         });
-    }
+    };
+
+    //Metodo per aggiornare isFound
+    this.updateAttraction = (id) => {
+        return new Promise((resolve,reject) => {
+            const sql = "UPDATE attraction SET isFound = 1 WHERE id = ?";
+
+            db.query(sql,[id],(err,result) => {
+                if(err){
+                    reject(err);
+                }else{
+                    resolve(result);
+                }
+            });
+
+        });
+
+    };
 }

@@ -67,6 +67,21 @@ app.get('/api/getItinerary',(req,res) => {
     }
 });
 
+app.post('api/setFound',(req,res) => {
+    try{
+        gemDAO.updateAttraction(req.body.id)
+        .then(() => {
+            res.status(200).send({message:'Attraction updated successfully' });
+        })
+        .catch((err) => {
+            console.error('Error updating attraction:', err);
+            res.status(500).send({ error: 'Failed to update attraction' });
+        });
+    }catch(err){
+        res.status(500).end();
+    }
+});
+
 
 
 app.listen(port, () => { console.log(`API server started at http://localhost:${port}`); });

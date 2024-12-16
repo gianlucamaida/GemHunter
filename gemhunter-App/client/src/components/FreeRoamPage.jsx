@@ -2,12 +2,30 @@ import { MapContainer ,TileLayer,Marker,useMap,Circle} from "react-leaflet";
 import characterIcon from "../icons/icon_walking_Man.png"; // Aggiungi il percorso dell'immagine del personaggio
 import { useState } from "react";
 import { Modal } from "react-bootstrap";
+import API from "../API.mjs";
+import { useEffect } from "react";
 
 const FreeRoamPage = ({position,attractions}) => {
   // Se la posizione è nulla, non renderizzare la mappa
   const [selectedAttraction, setSelectedAttraction] = useState(null);
   const [showCard,setShowCard] = useState(false);
   
+  // Calcola la distanza tra due coordinate geografiche in metri
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371e3; // Raggio della Terra in metri
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) *
+      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distanza in metri
+  };
 
   if (!position) {
     return <div>Loading...</div>;
@@ -28,6 +46,32 @@ const FreeRoamPage = ({position,attractions}) => {
     setShowCard(false);
     setSelectedAttraction(null);
   };
+
+  const checkProximity = async () => {
+    for (const attraction of attractions) {
+      if (attraction.isGem === 1 && attraction.isFound !== 1) {
+        const distance = calculateDistance(position[0], position[1], attraction.lat, attraction.lon);
+        if (distance <= 10) {
+          console.log("User is within range of the gem:", attraction);
+
+          // Mostra il popup della carta
+          setShowCard(true);
+          setSelectedAttraction(attraction);
+
+          // Chiama l'API per aggiornare isFound
+          API.updateAttraction(attraction.id);
+          break; // Esci dal loop una volta trovata una gemma vicina
+        }
+      }
+    }
+  };
+
+  useEffect(( ) => {
+    if(position) {
+      checkProximity();
+    }
+  },[position]);
+
 
   const renderMarker = (attraction) => {
     console.log(attraction);
