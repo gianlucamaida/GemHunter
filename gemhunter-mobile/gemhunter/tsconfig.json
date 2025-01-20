@@ -3,9 +3,11 @@
   "compilerOptions": {
     "module": "esnext",
     "strict": true,
+    "jsx": "react", // Informa TypeScript che il progetto utilizza JSX con React
     "paths": {
       "@/*": ["./*"]
-    }
+    },
+    "baseUrl": "." // Imposta la root del progetto per gli alias
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
