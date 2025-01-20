@@ -35,6 +35,7 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="mainpage"
+
         options={{
           title: "Map",
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
@@ -49,7 +50,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus" color={color} />,
         }}
       />
-
+      
     </Tabs>
   );
 }

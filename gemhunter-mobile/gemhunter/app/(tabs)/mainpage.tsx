@@ -4,24 +4,31 @@ import MapView, { Marker, Circle } from "react-native-maps"; // Importa i compon
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 
-interface Attraction {
-  id: number;
-  lat: number;
-  lon: number;
-  isGem: number;
-  icon: string;
-}
+import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
+import { useDatabase } from "@/hooks/useDatabase";
 
-interface MainPageProps {
-  attractions: Attraction[];
-}
-
-export default function MainPage({ attractions }: MainPageProps) {
+export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [attractions, setAttractions] = useState<Attraction[]>([]);
+  const { getAttractions } = useDatabase(); // Usa il hook per ottenere le attrazioni
+  const navigation = useNavigation<any>();
+
+  useEffect(() => {
+    const loadAttractions = async () => {
+      try {
+        const results = await getAttractions(); // Ottieni le attrazioni dal database
+        setAttractions(results); // Imposta le attrazioni nello state
+      } catch (error) {
+        console.error("Failed to load attractions:", error);
+      }
+    };
+
+    loadAttractions();
+  }, []);
 
   // Funzione per ottenere la posizione
   const getUserLocation = async () => {
@@ -51,8 +58,6 @@ export default function MainPage({ attractions }: MainPageProps) {
     getUserLocation();
   }, []);
 
-  const navigation = useNavigation<any>();
-
   if (!userLocation) {
     return (
       <View style={styles.loadingContainer}>
@@ -61,6 +66,7 @@ export default function MainPage({ attractions }: MainPageProps) {
     );
   }
 
+  // Funzione per rendere il marker per ogni attrazione
   const renderMarker = (attraction: Attraction) => {
     if (attraction.isGem === 1) {
       return (
@@ -99,9 +105,8 @@ export default function MainPage({ attractions }: MainPageProps) {
         showsUserLocation={true}
         followsUserLocation={true} // La mappa segue automaticamente la posizione dell'utente
       >
-        {/* Marker per attrazioni */}
-        {/* {attractions.map((attraction) => renderMarker(attraction))} */}
-        {/* do not consider it for now as we have no db with attractions and no api call */}
+        {/* Renderizza i marker per le attrazioni */}
+        {attractions.map((attraction) => renderMarker(attraction))}
 
         {/* Marker per la posizione dell'utente */}
         {userLocation && (
@@ -111,7 +116,6 @@ export default function MainPage({ attractions }: MainPageProps) {
               longitude: userLocation.longitude,
             }}
             title="Your Location"
-            // icon={require("../../assets/icons/icon_walking_Man.png")} // Icona personalizzata
           />
         )}
       </MapView>
