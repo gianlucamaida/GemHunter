@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button, Image } from "react-native";
+import { View, Text, StyleSheet, Button, Image, TouchableOpacity } from "react-native";
 import MapView, { Marker, Circle } from "react-native-maps"; // Importa i componenti di react-native-maps
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
@@ -118,10 +118,9 @@ export default function MainPage({ attractions }: MainPageProps) {
 
       {/* Bottone Start Hunt */}
       <View style={styles.buttonContainer}>
-        <Button
-          title="Start Hunt"
-          onPress={() => navigation.navigate("FreeRoam")} // Navigazione verso un'altra pagina
-        />
+        <TouchableOpacity onPress={() => navigation.navigate("FreeRoam")}>
+          <Text style={styles.buttonText}>Start Hunt</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -141,12 +140,19 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 20,
-    left: 20,
-    right: 20,
-    backgroundColor: "white",
-    borderRadius: 8,
+    bottom: 70,
+    left: 70,
+    right: 70,
+    backgroundColor: "black",
+    borderRadius: 30,
     elevation: 4, // Per ombre su Android
-    padding: 10,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "white", // Cambia il colore del testo a bianco
+    fontSize: 16, // Puoi anche regolare la dimensione del testo
+    fontWeight: "bold", // Testo in grassetto (opzionale)
   },
 });

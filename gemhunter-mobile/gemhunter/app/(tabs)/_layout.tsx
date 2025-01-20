@@ -14,17 +14,15 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint, // Colore attivo
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: "absolute",
-          },
-          default: {},
-        }),
+        tabBarStyle: {
+          backgroundColor: "black", // Colore viola desiderato per la barra
+          position: Platform.OS === 'ios' ? 'absolute' : 'relative', // Posizione della barra
+          borderTopWidth: 0, // Rimuove il bordo superiore della tab bar
+        },
       }}
     >
       <Tabs.Screen
@@ -34,13 +32,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: "Explore",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
+
       <Tabs.Screen
         name="mainpage"
         options={{
@@ -48,6 +40,16 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
         }}
       />
+
+      {/* Aggiungi il Tab per AddGem */}
+      <Tabs.Screen
+        name="addgem"
+        options={{
+          title: "Add Gem",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus" color={color} />,
+        }}
+      />
+
     </Tabs>
   );
 }
