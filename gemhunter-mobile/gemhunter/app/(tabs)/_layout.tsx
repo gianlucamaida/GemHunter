@@ -20,7 +20,7 @@ export default function TabLayout() {
         tabBarBackground: TabBarBackground,
         tabBarStyle: {
           backgroundColor: "black", // Colore viola desiderato per la barra
-          position: Platform.OS === 'ios' ? 'absolute' : 'relative', // Posizione della barra
+          position: Platform.OS === "ios" ? "absolute" : "relative", // Posizione della barra
           borderTopWidth: 0, // Rimuove il bordo superiore della tab bar
         },
       }}
@@ -35,7 +35,6 @@ export default function TabLayout() {
 
       <Tabs.Screen
         name="mainpage"
-
         options={{
           title: "Map",
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="map.fill" color={color} />,
@@ -50,7 +49,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus" color={color} />,
         }}
       />
-      
     </Tabs>
   );
 }

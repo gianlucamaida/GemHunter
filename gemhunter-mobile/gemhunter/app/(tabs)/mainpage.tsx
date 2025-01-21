@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Text, StyleSheet, Button, Image, TouchableOpacity } from "react-native";
 import MapView, { Marker, Circle } from "react-native-maps"; // Importa i componenti di react-native-maps
 import { useNavigation } from "@react-navigation/native";
@@ -6,14 +6,13 @@ import * as Location from "expo-location";
 
 import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
 import { getAttractions } from "@/dao/attractionsDao";
-// import { useDatabase } from "@/hooks/useDatabase";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
     latitude: number;
     longitude: number;
   } | null>(null);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<String | null>(null);
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const navigation = useNavigation<any>();
 
@@ -59,7 +58,7 @@ export default function MainPage() {
     getUserLocation();
   }, []);
 
-  if (!userLocation) {
+  if (!userLocation || attractions.length === 0) {
     return (
       <View style={styles.loadingContainer}>
         <Text>Loading...</Text>
@@ -105,13 +104,12 @@ export default function MainPage() {
           longitudeDelta: 0.05, // Zoom
         }}
         showsUserLocation={true}
-        followsUserLocation={true} // La mappa segue automaticamente la posizione dell'utente
       >
         {/* Renderizza i marker per le attrazioni */}
         {attractions.map((attraction) => renderMarker(attraction))}
 
         {/* Marker per la posizione dell'utente */}
-        {userLocation && (
+        {/* {userLocation && (
           <Marker
             coordinate={{
               latitude: userLocation.latitude,
@@ -119,7 +117,7 @@ export default function MainPage() {
             }}
             title="Your Location"
           />
-        )}
+        )} */}
       </MapView>
 
       {/* Bottone Start Hunt */}
