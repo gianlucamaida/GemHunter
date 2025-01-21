@@ -1,39 +1,37 @@
-import { useSQLiteContext } from "expo-sqlite";
-import { Attraction } from "@/constants/Attraction";
+import * as FileSystem from "expo-file-system";
+import { Asset } from "expo-asset";
+import * as SQLite from "expo-sqlite";
 
-export const useDatabase = () => {
-  const db = useSQLiteContext(); // Accesso al database tramite il contesto
-  console.log(db.databasePath);
+const dbPath = `${FileSystem.documentDirectory}gem.db`;
 
-  // Funzione per ottenere tutte le attrazioni
-  const getAttractions = async (): Promise<Attraction[]> => {
-    try {
-      const rows = await db.getAllAsync<Attraction>(
-        "SELECT id, lat, lon, isGem, icon FROM attractions"
-      );
-      return rows;
-    } catch (error) {
-      console.error("Error fetching attractions:", error);
-      throw error;
+async function copyDatabaseFile() {
+  //eliminazione del db
+  await FileSystem.deleteAsync(dbPath, { idempotent: true }); // idempotent evita errori se il file non esiste
+
+  const asset = Asset.fromModule(require("../assets/gem.db"));
+  await asset.downloadAsync(); // Assicurati che l'asset venga scaricato
+  await FileSystem.copyAsync({
+    from: asset.localUri ? asset.localUri : "",
+    to: dbPath,
+  });
+}
+
+async function openDatabase() {
+  await copyDatabaseFile();
+  return await SQLite.openDatabaseAsync("gem.db", undefined, `${FileSystem.documentDirectory}`);
+}
+
+const getDatabase = (() => {
+  let dbInstance: any = null;
+
+  return async () => {
+    if (!dbInstance) {
+      dbInstance = await openDatabase();
     }
+    return dbInstance;
   };
+})();
 
-  // Funzione per inserire un'attrazione
-  const insertAttraction = async (attraction: Omit<Attraction, "id">): Promise<number> => {
-    try {
-      const result = await db.runAsync(
-        "INSERT INTO attractions (lat, lon, isGem, icon) VALUES (?, ?, ?, ?)",
-        [attraction.lat, attraction.lon, attraction.isGem, attraction.icon]
-      );
-      return result.lastInsertRowId; // Restituisce l'ID dell'ultima riga inserita
-    } catch (error) {
-      console.error("Error inserting attraction:", error);
-      throw error;
-    }
-  };
+export default getDatabase;
 
-  return {
-    getAttractions,
-    insertAttraction,
-  };
-};
+//nei dao usare -> import getDatabase from './connectionDB';

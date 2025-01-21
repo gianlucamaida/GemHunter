@@ -5,7 +5,8 @@ import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 
 import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
-import { useDatabase } from "@/hooks/useDatabase";
+import { getAttractions } from "@/dao/attractionsDao";
+// import { useDatabase } from "@/hooks/useDatabase";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -14,13 +15,13 @@ export default function MainPage() {
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [attractions, setAttractions] = useState<Attraction[]>([]);
-  const { getAttractions } = useDatabase(); // Usa il hook per ottenere le attrazioni
   const navigation = useNavigation<any>();
 
   useEffect(() => {
     const loadAttractions = async () => {
       try {
-        const results = await getAttractions(); // Ottieni le attrazioni dal database
+        const results = await getAttractions();
+        // console.log(results);
         setAttractions(results); // Imposta le attrazioni nello state
       } catch (error) {
         console.error("Failed to load attractions:", error);
@@ -68,6 +69,7 @@ export default function MainPage() {
 
   // Funzione per rendere il marker per ogni attrazione
   const renderMarker = (attraction: Attraction) => {
+    console.log(attraction);
     if (attraction.isGem === 1) {
       return (
         <Circle
@@ -144,7 +146,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 70,
+    bottom: 100,
     left: 70,
     right: 70,
     backgroundColor: "black",
