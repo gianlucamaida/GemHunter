@@ -3,5 +3,8 @@ export interface Attraction {
   lat: number;
   lon: number;
   isGem: number;
+  isFound: number;
   icon: string;
+  name: string;
+  description: string;
 }
