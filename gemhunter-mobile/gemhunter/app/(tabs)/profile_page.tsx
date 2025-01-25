@@ -1,210 +1,148 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
-  Button,
   TextInput,
-  Modal,
-  StyleSheet,
   Image,
+  StyleSheet,
   TouchableOpacity,
+  Dimensions,
+  Linking,
 } from "react-native";
-import * as ImagePicker from "expo-image-picker";
-import * as Location from "expo-location";
-//import API from '../API.mjs';
+import { Ionicons } from "@expo/vector-icons";
 
 const Profile = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [name, setName] = useState("");
-  const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [lat, setLat] = useState<number | null>(null);
-  const [lon, setLon] = useState<number | null>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
+  const [userData, setUserData] = useState({
+    firstName: "Gianluca",
+    lastName: "Maida",
+    email: "gianlucamaida@studenti.polito.it",
+    phone: "+39 3707005546",
+    github: "https://github.com/Gianluca280600",
+    username: "@g_maida",
+    profileImage: require("../../assets/profile_images/IMG_7471.jpg"), // Percorso relativo al file
+  });
 
-  const cameraRef = useRef(null);
-
-  // Funzione per ottenere la posizione dell'utente
-  const getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access location was denied");
-      return;
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    setLat(location.coords.latitude);
-    setLon(location.coords.longitude);
+  const getGithubUsername = (url: string) => {
+    const parts = url.split("/");
+    return parts[parts.length - 1]; // Restituisce l'ultima parte dell'URL
   };
-
-  // Funzione per chiedere il permesso della fotocamera e scattare la foto
-  const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-
-    if (status !== "granted") {
-      alert("Permission to access camera was denied");
-      return;
-    }
-
-    let result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      const photoUri = result.assets[0].uri; // Accedi al 'uri' correttamente
-      setPhoto(photoUri);
-      setShowModal(true);
-    }
-  };
-
-  // Funzione per inviare i dati
-  const handleSubmit = async () => {
-    if (!name || !comment || !photo || lat === null || lon === null) {
-      alert("Please fill in all fields, including location.");
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      //const response = await API.addGem(name, photo, lat, lon, comment);  // Invia i dati al server
-      setIsSubmitted(true);
-      setSubmitMessage("Gem added successfully!");
-    } catch (error) {
-      console.error("Error submitting gem:", error);
-      setIsSubmitted(true);
-      setSubmitMessage("Error submitting gem.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  useEffect(() => {
-    getLocation();
-  }, []);
 
   return (
     <View style={styles.container}>
-      <View style={styles.rowContainer}>
-        <Text style={styles.title}>Add a New Gem</Text>
-        <Image
-          source={require("../../assets/icons/gemma_icon.webp")} // Inserisci l'immagine
-          style={styles.image} // Stile per l'immagine
-        />
-      </View>
+      {/* Header */}
+      <Text style={styles.header}>Profile</Text>
 
-      {/* Fotocamera */}
-      <View style={styles.cameraContainer}>
-        <TouchableOpacity onPress={takePhoto} style={styles.cameraButton}>
-          <Text style={styles.buttonText}>Take Photo</Text>
+      {/* Profile Section */}
+      <View style={styles.profileSection}>
+        <TouchableOpacity>
+          <Image source={userData.profileImage} style={styles.profileImage} />
         </TouchableOpacity>
+        <Text style={styles.username}>{userData.username}</Text>
+        <Text style={styles.changeUserText}>Tap to change user/modify</Text>
       </View>
 
-      {/* Modal per la foto scattata */}
-      <Modal visible={showModal} animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalContent}>
-          {photo && <Image source={{ uri: photo }} style={styles.capturedImage} />}
-          <TextInput
-            style={styles.input}
-            placeholder="Enter the name of the gem"
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            style={[styles.input, styles.textarea]}
-            placeholder="Enter a comment"
-            value={comment}
-            onChangeText={setComment}
-            multiline
-          />
-          <Button
-            title={isSubmitting ? "Submitting..." : "Submit"}
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-          />
+      {/* Details Section */}
+      <View style={styles.detailsSection}>
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>First name:</Text>
+          <TextInput style={styles.input} value={userData.firstName} editable={false} />
         </View>
-      </Modal>
-
-      {/* Modal per il risultato dell'invio */}
-      <Modal
-        visible={isSubmitted}
-        animationType="slide"
-        onRequestClose={() => setIsSubmitted(false)}
-      >
-        <View style={styles.modalContent}>
-          <Text>{submitMessage}</Text>
-          <Button title="Close" onPress={() => setIsSubmitted(false)} />
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Last name:</Text>
+          <TextInput style={styles.input} value={userData.lastName} editable={false} />
         </View>
-      </Modal>
+        <Text style={styles.contactTitle}>Contacts</Text>
+        <View style={styles.contactGroup}>
+          <Ionicons name="mail-outline" size={24} color="green" />
+          <Text style={styles.contactText}>{userData.email}</Text>
+        </View>
+        <View style={styles.contactGroup}>
+          <Ionicons name="call-outline" size={24} color="green" />
+          <Text style={styles.contactText}>{userData.phone}</Text>
+        </View>
+        <View style={styles.contactGroup}>
+          <Ionicons name="logo-github" size={24} color="green" />
+          <TouchableOpacity onPress={() => Linking.openURL(userData.github)}>
+            <Text style={[styles.contactText, styles.githubText]}>
+              {getGithubUsername(userData.github)}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };
 
+const { width } = Dimensions.get("window");
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-    backgroundColor: "white",
+    backgroundColor: "#fff",
+    paddingTop: 60,
+    paddingHorizontal: 16,
   },
-  title: {
-    fontSize: 24,
+  header: {
+    fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 20,
+    textAlign: "center",
+    marginBottom: 16,
   },
-  cameraContainer: {
-    marginBottom: 20,
+  profileSection: {
+    alignItems: "center",
+    marginBottom: 24,
   },
-  cameraButton: {
-    backgroundColor: "black",
-    padding: 15,
-    paddingLeft: 70,
-    paddingRight: 70,
-    borderRadius: 30,
+  profileImage: {
+    width: width * 0.3,
+    height: width * 0.3,
+    borderRadius: width * 0.3,
+    borderWidth: 4,
+    margin: 10,
   },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
+  username: {
+    fontSize: 20,
     fontWeight: "bold",
   },
-  modalContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
+  changeUserText: {
+    fontSize: 14,
+    color: "green",
   },
-  capturedImage: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
+  detailsSection: {
+    marginTop: 20,
+    paddingHorizontal: 16,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 14,
+    color: "#aaa",
   },
   input: {
-    height: 40,
-    width: "100%",
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 15,
-    padding: 10,
-    borderRadius: 5,
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#000",
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+    paddingVertical: 4,
   },
-  textarea: {
-    height: 80,
-    textAlignVertical: "top",
+  contactTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginVertical: 16,
   },
-  image: {
-    width: 50, // Cambia la larghezza come desideri
-    height: 50, // Cambia l'altezza come desideri
-    resizeMode: "contain", // Opzionale, per mantenere le proporzioni corrette
-    //transform: [{ rotate: '15deg' }], // Aggiungi la rotazione desiderata
-    marginBottom: 20,
-    marginLeft: 5,
+  contactGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
   },
-  rowContainer: {
-    flexDirection: "row", // Dispone gli elementi in orizzontale
-    alignItems: "center", // Centra verticalmente gli elementi
-    marginBottom: 5,
+  contactText: {
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  githubText: {
+    color: "black", // Colore per indicare che è cliccabile
+    textDecorationLine: "underline", // Sottolinea il testo
   },
 });
 

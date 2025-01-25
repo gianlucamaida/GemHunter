@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./css/ProfilePage.css";
+import { View, Text, TextInput, Button, StyleSheet, Image, TouchableOpacity } from "react-native";
 
 const Profile = () => {
   const [userData, setUserData] = useState({
@@ -17,16 +17,14 @@ const Profile = () => {
     setEditing(!editing);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
+  const handleInputChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
   };
 
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
+  const handleFormSubmit = () => {
     setUserData({
       ...userData,
       name: formData.name,
@@ -36,65 +34,132 @@ const Profile = () => {
   };
 
   return (
-    <div className="profile-container">
-      <h1>Il Mio Profilo</h1>
-      <div className="profile-card">
-        <div className="profile-avatar">
-          {/* Icona della persona */}
-          <img
-            src="https://via.placeholder.com/150/0000FF/FFFFFF?text=User" // Icona utente stilizzata
-            alt="Avatar"
-            className="avatar-icon"
+    <View style={styles.profileContainer}>
+      <Text style={styles.title}>Il Mio Profilo</Text>
+      <View style={styles.profileCard}>
+        <View style={styles.profileAvatar}>
+          <Image
+            source={{
+              uri: "https://via.placeholder.com/150/0000FF/FFFFFF?text=User",
+            }}
+            style={styles.avatarIcon}
           />
-          <h2 className="user-name">{userData.name}</h2>
-        </div>
+          <Text style={styles.userName}>{userData.name}</Text>
+        </View>
 
         {!editing ? (
-          <div className="profile-info">
-            <p className="user-email">{userData.email}</p>
-            <button onClick={handleEditToggle} className="edit-button">
-              Modifica Profilo
-            </button>
-          </div>
+          <View style={styles.profileInfo}>
+            <Text style={styles.userEmail}>{userData.email}</Text>
+            <TouchableOpacity onPress={handleEditToggle} style={styles.button}>
+              <Text style={styles.buttonText}>Modifica Profilo</Text>
+            </TouchableOpacity>
+          </View>
         ) : (
-          <form onSubmit={handleFormSubmit} className="profile-form">
-            <div className="form-group">
-              <label htmlFor="name">Nome:</label>
-              <input
-                type="text"
-                id="name"
-                name="name"
+          <View style={styles.profileForm}>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Nome:</Text>
+              <TextInput
+                style={styles.input}
                 value={formData.name}
-                onChange={handleInputChange}
-                required
+                onChangeText={(value) => handleInputChange("name", value)}
               />
-            </div>
-            <div className="form-group">
-              <label htmlFor="email">Email:</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
+            </View>
+            <View style={styles.formGroup}>
+              <Text style={styles.label}>Email:</Text>
+              <TextInput
+                style={styles.input}
                 value={formData.email}
-                onChange={handleInputChange}
-                required
+                onChangeText={(value) => handleInputChange("email", value)}
+                keyboardType="email-address"
               />
-            </div>
-            <button type="submit" className="save-button">
-              Salva
-            </button>
-            <button
-              type="button"
-              onClick={handleEditToggle}
-              className="cancel-button"
-            >
-              Annulla
-            </button>
-          </form>
+            </View>
+            <View style={styles.buttonContainer}>
+              <Button title="Salva" onPress={handleFormSubmit} />
+              <Button title="Annulla" onPress={handleEditToggle} />
+            </View>
+          </View>
         )}
-      </div>
-    </div>
+      </View>
+    </View>
   );
 };
+
+const styles = StyleSheet.create({
+  profileContainer: {
+    flex: 1,
+    padding: 16,
+    backgroundColor: "#f5f5f5",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  profileCard: {
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  profileAvatar: {
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  avatarIcon: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginBottom: 8,
+  },
+  userName: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  profileInfo: {
+    alignItems: "center",
+  },
+  userEmail: {
+    fontSize: 16,
+    color: "#555",
+    marginBottom: 16,
+  },
+  button: {
+    backgroundColor: "#007bff",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  profileForm: {
+    marginTop: 16,
+  },
+  formGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 16,
+    marginBottom: 8,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 8,
+    fontSize: 16,
+    backgroundColor: "#fff",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+});
 
 export default Profile;

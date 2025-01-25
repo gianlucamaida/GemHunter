@@ -42,14 +42,6 @@ export default function TabLayout() {
         }}
       />
 
-      {/* Aggiungi il Tab per la deck page */}
-      <Tabs.Screen
-        name="deck_page"
-        options={{
-          title: "Deck",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="book" color={color} />,
-        }}
-      />
       {/* Aggiungi il Tab per AddGem */}
       <Tabs.Screen
         name="add_gem"
@@ -58,13 +50,22 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.app" color={color} />,
         }}
       />
+
+      {/* Aggiungi il Tab per la deck page */}
+      <Tabs.Screen
+        name="deck_page"
+        options={{
+          title: "Deck",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="book" color={color} />,
+        }}
+      />
+
+      {/* Aggiungi il Tab per la profile page */}
       <Tabs.Screen
         name="profile_page"
         options={{
           title: "Profile",
-          tabBarIcon: ({ color }) => (
-            <IconSymbol size={28} name="brain.head.profile" color={color} />
-          ),
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person" color={color} />,
         }}
       />
     </Tabs>
