@@ -35,8 +35,6 @@ export default function MainPage() {
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
   };
 
-  const imageMappingFunc = (icon: String) => {};
-
   useEffect(() => {
     const loadAttractions = async () => {
       try {
@@ -286,8 +284,6 @@ const styles = StyleSheet.create({
   },
 
   modalBackgroundImage: {
-    // width: "100%",
-    // height: "100%",
     alignItems: "center",
     justifyContent: "center",
     padding: 20,
@@ -311,14 +307,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingInline: 30,
   },
-  // attractionDescriptionGem: {
-  //   fontSize: 16,
-  //   textAlign: "center",
-  //   color: "#333",
-  //   marginBottom: 20,
-  //   backgroundColor: "white",
-  //   borderRadius: 20,
-  // },
   closeButton: {
     width: "80%",
     backgroundColor: "black",

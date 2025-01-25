@@ -1,5 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, Button, TextInput, Modal, StyleSheet, Image, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  TextInput,
+  Modal,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
 //import API from '../API.mjs';
@@ -33,24 +42,23 @@ const AddGem = () => {
   // Funzione per chiedere il permesso della fotocamera e scattare la foto
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-  
+
     if (status !== "granted") {
       alert("Permission to access camera was denied");
       return;
     }
-  
+
     let result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1,
     });
-  
+
     if (result.assets && result.assets.length > 0) {
       const photoUri = result.assets[0].uri; // Accedi al 'uri' correttamente
       setPhoto(photoUri);
       setShowModal(true);
     }
   };
-  
 
   // Funzione per inviare i dati
   const handleSubmit = async () => {
@@ -61,11 +69,11 @@ const AddGem = () => {
     setIsSubmitting(true);
     try {
       //const response = await API.addGem(name, photo, lat, lon, comment);  // Invia i dati al server
-      setIsSubmitted(true); 
-      setSubmitMessage("Gem added successfully!"); 
+      setIsSubmitted(true);
+      setSubmitMessage("Gem added successfully!");
     } catch (error) {
       console.error("Error submitting gem:", error);
-      setIsSubmitted(true); 
+      setIsSubmitted(true);
       setSubmitMessage("Error submitting gem.");
     } finally {
       setIsSubmitting(false);
@@ -81,11 +89,10 @@ const AddGem = () => {
       <View style={styles.rowContainer}>
         <Text style={styles.title}>Add a New Gem</Text>
         <Image
-            source={require('../../assets/icons/gemma_icon.webp')}  // Inserisci l'immagine
-            style={styles.image}  // Stile per l'immagine
+          source={require("../../assets/icons/gemma_icon.webp")} // Inserisci l'immagine
+          style={styles.image} // Stile per l'immagine
         />
       </View>
-      
 
       {/* Fotocamera */}
       <View style={styles.cameraContainer}>
@@ -120,7 +127,11 @@ const AddGem = () => {
       </Modal>
 
       {/* Modal per il risultato dell'invio */}
-      <Modal visible={isSubmitted} animationType="slide" onRequestClose={() => setIsSubmitted(false)}>
+      <Modal
+        visible={isSubmitted}
+        animationType="slide"
+        onRequestClose={() => setIsSubmitted(false)}
+      >
         <View style={styles.modalContent}>
           <Text>{submitMessage}</Text>
           <Button title="Close" onPress={() => setIsSubmitted(false)} />
@@ -136,7 +147,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "white"
+    backgroundColor: "white",
   },
   title: {
     fontSize: 24,
@@ -182,19 +193,19 @@ const styles = StyleSheet.create({
     height: 80,
     textAlignVertical: "top",
   },
-  image:{
+  image: {
     width: 50, // Cambia la larghezza come desideri
     height: 50, // Cambia l'altezza come desideri
     resizeMode: "contain", // Opzionale, per mantenere le proporzioni corrette
     //transform: [{ rotate: '15deg' }], // Aggiungi la rotazione desiderata
     marginBottom: 20,
-    marginLeft:5,
+    marginLeft: 5,
   },
-  rowContainer:{
-    flexDirection: 'row', // Dispone gli elementi in orizzontale
-    alignItems: 'center', // Centra verticalmente gli elementi
+  rowContainer: {
+    flexDirection: "row", // Dispone gli elementi in orizzontale
+    alignItems: "center", // Centra verticalmente gli elementi
     marginBottom: 5,
-  }
+  },
 });
 
 export default AddGem;

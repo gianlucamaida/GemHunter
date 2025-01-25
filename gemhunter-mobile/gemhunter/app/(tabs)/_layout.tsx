@@ -33,12 +33,29 @@ export default function TabLayout() {
         }}
       />
 
+      {/* Aggiungi il Tab per creare un itinerario */}
+      <Tabs.Screen
+        name="create_itinerary"
+        options={{
+          title: "New Itinerary",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="location" color={color} />,
+        }}
+      />
+
+      {/* Aggiungi il Tab per la deck page */}
+      <Tabs.Screen
+        name="deck_page"
+        options={{
+          title: "Deck",
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="book" color={color} />,
+        }}
+      />
       {/* Aggiungi il Tab per AddGem */}
       <Tabs.Screen
-        name="addgem"
+        name="add_gem"
         options={{
           title: "Add Gem",
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus" color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.app" color={color} />,
         }}
       />
     </Tabs>
