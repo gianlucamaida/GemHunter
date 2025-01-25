@@ -58,6 +58,15 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.app" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="profile_page"
+        options={{
+          title: "Profile",
+          tabBarIcon: ({ color }) => (
+            <IconSymbol size={28} name="brain.head.profile" color={color} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
