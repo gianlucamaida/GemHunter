@@ -7,16 +7,22 @@ import {
   Modal,
   StyleSheet,
   ImageBackground,
+  FlatList,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
+import { Attraction } from "@/constants/Attraction";
 import { getAttractions } from "@/dao/attractionsDao";
 
+const ITEMS_PER_PAGE = 6;
+const NUM_COLUMNS = 2;
+
 const DeckPage = () => {
-  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null); // Attrazione selezionata
+  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const navigation = useNavigation<any>();
+  const [page, setPage] = useState(1);
+  const [displayedAttractions, setDisplayedAttractions] = useState<Attraction[]>([]);
 
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
@@ -30,19 +36,17 @@ const DeckPage = () => {
     const loadAttractions = async () => {
       try {
         const results = await getAttractions();
-        // console.log(results);
-        setAttractions(results); // Imposta le attrazioni nello state
+        setAttractions(results.concat(results));
       } catch (error) {
         console.error("Failed to load attractions:", error);
       }
     };
-
     loadAttractions();
   }, []);
 
   const handleCardClick = (attraction: Attraction) => {
     setSelectedAttraction(attraction);
-    setShowModal(true);
+    attraction.isFound === 1 && setShowModal(true);
   };
 
   const closeModal = () => {
@@ -50,33 +54,61 @@ const DeckPage = () => {
     setShowModal(false);
   };
 
-  const displayedAttractions = attractions
-    .filter((attraction) => attraction.isFound === 1)
-    .slice(0, 5);
-  console.log("ATTRAZIONI DECK", displayedAttractions);
+  const handleNextPage = () => {
+    if (page < attractions.length / ITEMS_PER_PAGE) {
+      setPage(page + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  useEffect(() => {
+    if (attractions.length > 0) {
+      const start = (page - 1) * ITEMS_PER_PAGE;
+      const end = page * ITEMS_PER_PAGE;
+      setDisplayedAttractions(attractions.slice(start, end));
+    }
+  }, [attractions, page]);
+
+  const renderItem = ({ item }: { item: Attraction }) => (
+    <View style={styles.deckItem}>
+      <TouchableOpacity style={styles.deckSlot} onPress={() => handleCardClick(item)}>
+        <ImageBackground
+          source={imageMapping[item.icon as keyof typeof imageMapping]}
+          style={styles.cardImage}
+          imageStyle={item.isFound === 0 ? styles.imageBlurred : {}}
+        >
+          {item.isFound === 0 && (
+            <View style={styles.overlay}>
+              <Text style={styles.questionMark}>???</Text>
+            </View>
+          )}
+        </ImageBackground>
+      </TouchableOpacity>
+      <Text style={styles.cardName}>{item.isFound === 1 ? item.name : "???"}</Text>
+    </View>
+  );
 
   return (
     <View style={styles.deckPage}>
       <Text style={styles.title}>Hunter's Deck</Text>
-
-      <View style={styles.deckGrid}>
-        {displayedAttractions.map((attraction) => (
-          <View key={attraction.id} style={styles.deckItem}>
-            <TouchableOpacity style={styles.deckSlot} onPress={() => handleCardClick(attraction)}>
-              <Image
-                source={imageMapping[attraction.icon as keyof typeof imageMapping]}
-                style={styles.cardImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.cardName}>{attraction.name}</Text>
-          </View>
-        ))}
-      </View>
-
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate("Map")}>
-        <Text style={styles.backButtonText}> Back to the map</Text>
+      <FlatList
+        data={displayedAttractions}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id.toString()}
+        numColumns={NUM_COLUMNS}
+        contentContainerStyle={styles.deckGrid}
+      />
+      <TouchableOpacity style={styles.prevButton} onPress={() => handlePrevPage()}>
+        <Text style={styles.backButtonText}> Prev</Text>
       </TouchableOpacity>
-
+      <TouchableOpacity style={styles.nextButton} onPress={() => handleNextPage()}>
+        <Text style={styles.backButtonText}>Next</Text>
+      </TouchableOpacity>
       <Modal
         visible={showModal}
         animationType="slide"
@@ -129,53 +161,89 @@ const DeckPage = () => {
 };
 
 const styles = StyleSheet.create({
+  modalImage: { width: "100%", height: 150, borderRadius: 15, marginBottom: 15 },
+  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
+  modalDescription: { fontSize: 16, textAlign: "center", marginBottom: 20, paddingInline: 30 },
   deckPage: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    padding: 20,
+    paddingTop: 100,
     backgroundColor: "white",
   },
-  title: { position: "absolute", top: 100, fontSize: 24, fontWeight: "bold", marginBottom: 20 },
-  deckGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "center" },
+  modalContentGemFound: {
+    width: "85%",
+    borderRadius: 20,
+    overflow: "hidden", // Necessario per far sì che i bordi arrotondati vengano applicati correttamente all'ImageBackground
+    elevation: 5, // Ombra per Android
+    shadowColor: "#000", // Ombra per iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalBackgroundImage: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 30,
+  },
+  deckGrid: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   deckItem: {
     alignItems: "center",
-    margin: 10,
+    margin: 15,
   },
   deckSlot: {
     width: 110,
     height: 110,
-    margin: 10,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
     borderRadius: 100,
     overflow: "hidden",
   },
-  slotNumber: { alignItems: "center", justifyContent: "center" },
-  slotNumberText: { fontSize: 20, fontWeight: "bold" },
-  slotCard: { alignItems: "center" },
   cardImage: {
-    width: 130,
-    height: 130,
+    width: "100%",
+    height: "100%",
   },
-  cardName: { fontSize: 14, fontWeight: "bold" },
-  backButton: {
+  cardName: {
+    maxWidth: 110,
+    marginTop: 10,
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  prevButton: {
+    width: 100,
     position: "absolute",
     bottom: 100,
-    left: 70,
-    right: 70,
+    left: 80,
     backgroundColor: "black",
     borderRadius: 30,
-    elevation: 4, // Per ombre su Android
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  nextButton: {
+    width: 100,
+    position: "absolute",
+    bottom: 100,
+    right: 80,
+    backgroundColor: "black",
+    borderRadius: 30,
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
   },
   backButtonText: {
-    color: "white", // Cambia il colore del testo a bianco
-    fontSize: 16, // Puoi anche regolare la dimensione del testo
-    fontWeight: "bold", // Testo in grassetto (opzionale)
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   modalContainer: {
     flex: 1,
@@ -195,10 +263,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
-  modalImage: { width: "100%", height: 150, borderRadius: 15, marginBottom: 15 },
-  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
-  modalDescription: { fontSize: 16, textAlign: "center", marginBottom: 20, paddingInline: 30 },
-  modalMessage: { fontSize: 18, textAlign: "center", marginBottom: 20 },
   closeButton: {
     width: "80%",
     backgroundColor: "black",
@@ -209,21 +273,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   closeButtonText: { color: "white", fontSize: 16 },
-  modalContentGemFound: {
-    width: "85%",
-    borderRadius: 20,
-    overflow: "hidden", // Necessario per far sì che i bordi arrotondati vengano applicati correttamente all'ImageBackground
-    elevation: 5, // Ombra per Android
-    shadowColor: "#000", // Ombra per iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+  imageBlurred: {
+    opacity: 0.3,
   },
-
-  modalBackgroundImage: {
-    alignItems: "center",
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
-    padding: 20,
+    alignItems: "center",
+  },
+  questionMark: {
+    fontSize: 50,
+    fontWeight: "bold",
+    color: "white",
   },
 });
 
