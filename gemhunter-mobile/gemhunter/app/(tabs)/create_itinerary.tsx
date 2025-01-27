@@ -1,145 +1,140 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  Button,
-  TextInput,
-  Modal,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from "react-native";
-import * as ImagePicker from "expo-image-picker";
+import React, { useState, useEffect } from "react";
+import { View, Text, Button, Modal, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Alert  } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
-//import API from '../API.mjs';
+import { Attraction } from "@/constants/Attraction";
+import { getAttractions } from "@/dao/attractionsDao";
 
-const CreateItinerary = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [photo, setPhoto] = useState<string | null>(null);
-  const [name, setName] = useState("");
-  const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [lat, setLat] = useState<number | null>(null);
-  const [lon, setLon] = useState<number | null>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
-
-  const cameraRef = useRef(null);
-
-  // Funzione per ottenere la posizione dell'utente
-  const getLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync();
-    if (status !== "granted") {
-      alert("Permission to access location was denied");
-      return;
-    }
-
-    let location = await Location.getCurrentPositionAsync({});
-    setLat(location.coords.latitude);
-    setLon(location.coords.longitude);
-  };
-
-  // Funzione per chiedere il permesso della fotocamera e scattare la foto
-  const takePhoto = async () => {
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-
-    if (status !== "granted") {
-      alert("Permission to access camera was denied");
-      return;
-    }
-
-    let result = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (result.assets && result.assets.length > 0) {
-      const photoUri = result.assets[0].uri; // Accedi al 'uri' correttamente
-      setPhoto(photoUri);
-      setShowModal(true);
-    }
-  };
-
-  // Funzione per inviare i dati
-  const handleSubmit = async () => {
-    if (!name || !comment || !photo || lat === null || lon === null) {
-      alert("Please fill in all fields, including location.");
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      //const response = await API.addGem(name, photo, lat, lon, comment);  // Invia i dati al server
-      setIsSubmitted(true);
-      setSubmitMessage("Gem added successfully!");
-    } catch (error) {
-      console.error("Error submitting gem:", error);
-      setIsSubmitted(true);
-      setSubmitMessage("Error submitting gem.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+export default function MainPage() {
+  const [userLocation, setUserLocation] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+  const [attractions, setAttractions] = useState<Attraction[]>([]);
+  const [selectedAttractions, setSelectedAttractions] = useState<Attraction[]>([]);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [routeData, setRouteData] = useState<any>(null); // Modifica tipo in base alla struttura che desideri
+  const [totalTime, setTotalTime] = useState<string>(""); // Tempo disponibile
+  const [maxAttractions, setMaxAttractions] = useState<string>(""); // Numero massimo di attrazioni
+  const [maxGems, setMaxGems] = useState<string>(""); // Numero massimo di gemme
+  const [formSubmitted, setFormSubmitted] = useState<boolean>(false); // Flag per il form
+  const [formErrors, setFormErrors] = useState<string[]>([]); // Per raccogliere gli errori di validazione
+  const navigation = useNavigation();
 
   useEffect(() => {
-    getLocation();
+    const loadAttractions = async () => {
+      const results = await getAttractions();
+      setAttractions(results); // Imposta le attrazioni nello state
+    };
+    loadAttractions();
   }, []);
 
+  useEffect(() => {
+    // Recupera la posizione dell'utente al montaggio del componente
+    const getUserLocation = async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === "granted") {
+        const location = await Location.getCurrentPositionAsync({});
+        setUserLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+      } else {
+        Alert.alert("Permission to access location was denied.");
+      }
+    };
+
+    getUserLocation();
+  }, []);
+
+  // Funzione di validazione
+  const validateForm = (): boolean => {
+    const errors: string[] = [];
+    // Controllo che i campi siano compilati
+    if (!totalTime || isNaN(Number(totalTime)) || Number(totalTime) <= 0) {
+      errors.push("Please enter a valid total time.");
+    }
+    if (!maxAttractions || isNaN(Number(maxAttractions)) || Number(maxAttractions) <= 0) {
+      errors.push("Please enter a valid number of attractions.");
+    }
+    if (!maxGems || isNaN(Number(maxGems)) || Number(maxGems) <= 0) {
+      errors.push("Please enter a valid number of gems.");
+    }
+
+    if (errors.length > 0) {
+      Alert.alert("Error", errors.join("\n"));
+      return false;
+    }
+
+    return true;
+  };
+
+  // Funzione di submit
+  const handleSubmit = () => {
+    const isValid = validateForm();
+    if (isValid) {
+      setFormSubmitted(true); // Procedi con l'invio del form
+      // Qui puoi implementare la logica per calcolare l'itinerario
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.rowContainer}>
-        <Text style={styles.title}>Add a New Gem</Text>
-        <Image
-          source={require("../../assets/icons/gemma_icon.webp")} // Inserisci l'immagine
-          style={styles.image} // Stile per l'immagine
-        />
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <View style={styles.container}>
+        <Text style={styles.title}>Create your itinerary!</Text>
+
+        {/* Messaggi di errore */}
+        {formErrors.length > 0 && (
+          <View style={styles.errorContainer}>
+            {formErrors.map((error, index) => (
+              <Text key={index} style={styles.errorText}>
+                {error}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {/* Form per inserire i dati */}
+        {!formSubmitted && (
+          <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="Avaiable Time (minutes)"
+              value={totalTime}
+              onChangeText={setTotalTime}
+              keyboardType="numeric"
+              placeholderTextColor="#666" // Colore più scuro per il placeholder
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Number of Attractions to see"
+              value={maxAttractions}
+              onChangeText={setMaxAttractions}
+              keyboardType="numeric"
+              placeholderTextColor="#666" // Colore più scuro per il placeholder
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Number of Gems to see"
+              value={maxGems}
+              onChangeText={setMaxGems}
+              keyboardType="numeric"
+              placeholderTextColor="#666" // Colore più scuro per il placeholder
+            />
+
+
+            {/* Bottone per inviare il form */}
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                <Text style={styles.buttonText}>Create</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
       </View>
-
-      {/* Fotocamera */}
-      <View style={styles.cameraContainer}>
-        <TouchableOpacity onPress={takePhoto} style={styles.cameraButton}>
-          <Text style={styles.buttonText}>Take Photo</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Modal per la foto scattata */}
-      <Modal visible={showModal} animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalContent}>
-          {photo && <Image source={{ uri: photo }} style={styles.capturedImage} />}
-          <TextInput
-            style={styles.input}
-            placeholder="Enter the name of the gem"
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            style={[styles.input, styles.textarea]}
-            placeholder="Enter a comment"
-            value={comment}
-            onChangeText={setComment}
-            multiline
-          />
-          <Button
-            title={isSubmitting ? "Submitting..." : "Submit"}
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-          />
-        </View>
-      </Modal>
-
-      {/* Modal per il risultato dell'invio */}
-      <Modal
-        visible={isSubmitted}
-        animationType="slide"
-        onRequestClose={() => setIsSubmitted(false)}
-      >
-        <View style={styles.modalContent}>
-          <Text>{submitMessage}</Text>
-          <Button title="Close" onPress={() => setIsSubmitted(false)} />
-        </View>
-      </Modal>
-    </View>
+    </TouchableWithoutFeedback>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -154,58 +149,49 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
   },
-  cameraContainer: {
+  errorContainer: {
     marginBottom: 20,
   },
-  cameraButton: {
+  errorText: {
+    color: "red",
+    fontSize: 14,
+  },
+  form: {
+    marginTop: 25,
+    marginBottom: 30,
+    width: "80%",
+  },
+  input: {
+    width: "100%",
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 15,
+    paddingLeft: 8,
+    borderRadius: 4,
+  },
+  inputPlaceholder: {
+    color: "#666", // Colore più scuro per il placeholder
+  },
+  buttonContainer: {
+    marginTop: 20,
+    alignItems: "center", // Centra il bottone
+  },
+  button: {
     backgroundColor: "black",
     padding: 15,
     paddingLeft: 70,
     paddingRight: 70,
     borderRadius: 30,
+    justifyContent: "center", // Centra il contenuto all'interno del bottone
+    alignItems: "center", // Centra il contenuto orizzontalmente
   },
   buttonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
-  },
-  modalContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  capturedImage: {
-    width: 200,
-    height: 200,
-    marginBottom: 20,
-  },
-  input: {
-    height: 40,
-    width: "100%",
-    borderColor: "gray",
-    borderWidth: 1,
-    marginBottom: 15,
-    padding: 10,
-    borderRadius: 5,
-  },
-  textarea: {
-    height: 80,
-    textAlignVertical: "top",
-  },
-  image: {
-    width: 50, // Cambia la larghezza come desideri
-    height: 50, // Cambia l'altezza come desideri
-    resizeMode: "contain", // Opzionale, per mantenere le proporzioni corrette
-    //transform: [{ rotate: '15deg' }], // Aggiungi la rotazione desiderata
-    marginBottom: 20,
-    marginLeft: 5,
-  },
-  rowContainer: {
-    flexDirection: "row", // Dispone gli elementi in orizzontale
-    alignItems: "center", // Centra verticalmente gli elementi
-    marginBottom: 5,
+    textAlign: "center", // Centra il testo all'interno
   },
 });
 
-export default CreateItinerary;
+
