@@ -27,31 +27,63 @@ const AddGem = () => {
   const scrollViewRef = useRef<ScrollView>(null);
   const nameInputRef = useRef<TextInput>(null);
   const commentInputRef = useRef<TextInput>(null);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
 
+  const resetModal = () => {
+    setShowModal(false);
+    setKeyboardVisible(false);
+    Keyboard.dismiss();
+    setName("");
+    setComment("");
+    setPhoto(null);
+    setLat(null);
+    setLon(null);
+
+    setTimeout(() => {
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
+    }, 1000);
+  };
+
+  // Aggiungi questo useEffect per gestire gli eventi della tastiera
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      () => setKeyboardVisible(true)
+    );
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, []);
+
+  // funzione per ottenere la posizione attuale dell'utente
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
       alert("Permission to access location was denied");
       return;
     }
-
     let location = await Location.getCurrentPositionAsync({});
     setLat(location.coords.latitude);
     setLon(location.coords.longitude);
   };
 
+  // funzione per scattare una foto
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
       alert("Permission to access camera was denied");
       return;
     }
-
     let result = await ImagePicker.launchCameraAsync({
       allowsEditing: true,
       quality: 1,
     });
-
     if (result.assets && result.assets.length > 0) {
       const photoUri = result.assets[0].uri;
       setPhoto(photoUri);
@@ -64,6 +96,7 @@ const AddGem = () => {
     Keyboard.dismiss();
   }, []);
 
+  // Funzione per scorrere fino all'input attuale
   const scrollToInput = (ref: React.RefObject<TextInput>) => {
     setTimeout(() => {
       ref.current?.measure((fx, fy, width, height, px, py) => {
@@ -85,6 +118,7 @@ const AddGem = () => {
             style={styles.stepImage}
           />
           <View style={styles.stepTextContainer}>
+            <Text style={styles.stepTitle}>Step 1</Text>
             <Text style={styles.stepDescription}>
               Take a clear photo of the gem you discovered. Ensure good lighting and focus.
             </Text>
@@ -124,31 +158,27 @@ const AddGem = () => {
         </TouchableOpacity>
       </View>
 
-      <Modal visible={showModal} animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : "height"} // Adattamento per tastiera
-        >
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={{ flex: 1 }}>
-              <ScrollView
-                ref={scrollViewRef}
-                onLayout={(event) => {
-                  const { layout } = event.nativeEvent;
-                  console.log("Layout aggiornato:", layout);
-                }}
-                contentContainerStyle={styles.modalContent}
-                keyboardShouldPersistTaps="handled"
-              >
-                <SafeAreaView style={styles.modalContainer}>
-                  {/* Pulsante di chiusura */}
-                  <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
-                    <Text style={styles.closeButtonText}>X</Text>
-                  </TouchableOpacity>
+      <Modal visible={showModal} animationType="slide" onRequestClose={resetModal}>
+        <View style={{ flex: 1 }}>
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+              <View style={{ flex: 1 }}>
+                <ScrollView
+                  ref={scrollViewRef}
+                  contentContainerStyle={styles.modalContent}
+                  keyboardShouldPersistTaps="handled"
+                >
+                  <View style={styles.modalContainer}>
+                    <TouchableOpacity style={styles.closeButton} onPress={resetModal}>
+                      <Text style={styles.closeButtonText}>X</Text>
+                    </TouchableOpacity>
 
-                  <SafeAreaView style={styles.modalContainerinside}>
                     <Text style={styles.title}>Add a New Gem</Text>
                     {photo && <Image source={{ uri: photo }} style={styles.capturedImage} />}
+
                     <View style={styles.fieldContainer}>
                       <Text style={styles.label}>Name:</Text>
                       <TextInput
@@ -161,6 +191,7 @@ const AddGem = () => {
                         onFocus={() => scrollToInput(nameInputRef)}
                       />
                     </View>
+
                     <View style={styles.fieldContainer}>
                       <Text style={styles.label}>Description:</Text>
                       <TextInput
@@ -174,25 +205,54 @@ const AddGem = () => {
                         onFocus={() => scrollToInput(commentInputRef)}
                       />
                     </View>
-                  </SafeAreaView>
-
-                  {/* Pulsante Submit */}
-                  <View style={styles.fixedButtonContainer}>
-                    <TouchableOpacity onPress={() => console.log("Submit pressed!")}>
-                      <Text style={styles.buttonText}>Submit</Text>
-                    </TouchableOpacity>
+                    <View
+                      style={[
+                        styles.submitButtonContainer,
+                        keyboardVisible
+                          ? styles.submitButtonKeyboardOpen
+                          : styles.submitButtonKeyboardClosed,
+                      ]}
+                    >
+                      <TouchableOpacity onPress={() => console.log("Submit pressed!")}>
+                        <Text style={styles.buttonText}>Submit</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </SafeAreaView>
-              </ScrollView>
-            </View>
-          </TouchableWithoutFeedback>
-        </KeyboardAvoidingView>
+                </ScrollView>
+              </View>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        </View>
       </Modal>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  submitButtonContainer: {
+    backgroundColor: "black",
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    marginHorizontal: 50,
+  },
+  submitButtonKeyboardClosed: {
+    marginTop: "auto", // Questo spingerà il bottone verso il basso
+    marginBottom: 30,
+  },
+  submitButtonKeyboardOpen: {
+    marginVertical: 20, // Margine più piccolo quando la tastiera è aperta
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "white",
+    paddingHorizontal: 20,
+    paddingTop: 50,
+  },
+  modalContent: {
+    flexGrow: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: "white",
@@ -220,7 +280,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     borderWidth: 4,
     margin: 20,
-
     resizeMode: "contain",
   },
   stepTextContainer: {
@@ -236,18 +295,6 @@ const styles = StyleSheet.create({
     color: "#555",
     marginTop: 5,
   },
-  fixedButtonContainer: {
-    position: "absolute",
-    marginBottom: 30,
-    bottom: 0,
-    left: 70,
-    right: 70,
-    backgroundColor: "black",
-    borderRadius: 30,
-    padding: 15,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   buttonContainer: {
     position: "absolute",
     bottom: 100,
@@ -255,19 +302,18 @@ const styles = StyleSheet.create({
     right: 70,
     backgroundColor: "black",
     borderRadius: 30,
-    elevation: 4, // Per ombre su Android
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
   },
   closeButton: {
     position: "absolute",
-    top: 65,
+    top: 70,
     left: 25,
-    backgroundColor: "black", // Sfondo semi-trasparente
-    width: 35, // Altezza e larghezza uguali per un cerchio
+    backgroundColor: "black",
+    width: 35,
     height: 35,
-    borderRadius: 20, // Raggio uguale alla metà della dimensione
+    borderRadius: 20,
     justifyContent: "center",
     alignItems: "center",
     zIndex: 1,
@@ -276,20 +322,6 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 18,
     fontWeight: "bold",
-  },
-
-  modalContainerinside: {
-    marginBottom: 100,
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    paddingHorizontal: 20,
-  },
-  modalContent: {
-    flexGrow: 1,
-    justifyContent: "center",
-    paddingBottom: 0, // Spazio extra per il pulsante
   },
   buttonText: {
     color: "white",
