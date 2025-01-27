@@ -2,31 +2,32 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
-  Button,
   TextInput,
   Modal,
   StyleSheet,
   Image,
   TouchableOpacity,
+  Platform,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  ScrollView,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as Location from "expo-location";
-//import API from '../API.mjs';
 
 const AddGem = () => {
   const [showModal, setShowModal] = useState(false);
   const [photo, setPhoto] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [comment, setComment] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [lat, setLat] = useState<number | null>(null);
   const [lon, setLon] = useState<number | null>(null);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [submitMessage, setSubmitMessage] = useState("");
+  const scrollViewRef = useRef<ScrollView>(null);
+  const nameInputRef = useRef<TextInput>(null);
+  const commentInputRef = useRef<TextInput>(null);
 
-  const cameraRef = useRef(null);
-
-  // Funzione per ottenere la posizione dell'utente
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -39,10 +40,8 @@ const AddGem = () => {
     setLon(location.coords.longitude);
   };
 
-  // Funzione per chiedere il permesso della fotocamera e scattare la foto
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
-
     if (status !== "granted") {
       alert("Permission to access camera was denied");
       return;
@@ -54,157 +53,277 @@ const AddGem = () => {
     });
 
     if (result.assets && result.assets.length > 0) {
-      const photoUri = result.assets[0].uri; // Accedi al 'uri' correttamente
+      const photoUri = result.assets[0].uri;
       setPhoto(photoUri);
       setShowModal(true);
     }
   };
 
-  // Funzione per inviare i dati
-  const handleSubmit = async () => {
-    if (!name || !comment || !photo || lat === null || lon === null) {
-      alert("Please fill in all fields, including location.");
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      //const response = await API.addGem(name, photo, lat, lon, comment);  // Invia i dati al server
-      setIsSubmitted(true);
-      setSubmitMessage("Gem added successfully!");
-    } catch (error) {
-      console.error("Error submitting gem:", error);
-      setIsSubmitted(true);
-      setSubmitMessage("Error submitting gem.");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   useEffect(() => {
     getLocation();
+    Keyboard.dismiss();
   }, []);
 
+  const scrollToInput = (ref: React.RefObject<TextInput>) => {
+    setTimeout(() => {
+      ref.current?.measure((fx, fy, width, height, px, py) => {
+        scrollViewRef.current?.scrollTo({
+          y: py - 100,
+          animated: true,
+        });
+      });
+    }, 50);
+  };
+
   return (
-    <View style={styles.container}>
-      <View style={styles.rowContainer}>
-        <Text style={styles.title}>Add a New Gem</Text>
-        <Image
-          source={require("../../assets/icons/gemma_icon.webp")} // Inserisci l'immagine
-          style={styles.image} // Stile per l'immagine
-        />
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Add a New Gem</Text>
+      <View style={styles.stepsContainer}>
+        <View style={styles.stepRow}>
+          <Image
+            source={require("../../assets/addgem_images/step1_img.png")}
+            style={styles.stepImage}
+          />
+          <View style={styles.stepTextContainer}>
+            <Text style={styles.stepDescription}>
+              Take a clear photo of the gem you discovered. Ensure good lighting and focus.
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.stepRow}>
+          <Image
+            source={require("../../assets/addgem_images/step2_img.png")}
+            style={styles.stepImage}
+          />
+          <View style={styles.stepTextContainer}>
+            <Text style={styles.stepTitle}>Step 2</Text>
+            <Text style={styles.stepDescription}>
+              Fill out the form with the gem's name and a detailed description.
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.stepRow}>
+          <Image
+            source={require("../../assets/addgem_images/step3_img.png")}
+            style={styles.stepImage}
+          />
+          <View style={styles.stepTextContainer}>
+            <Text style={styles.stepTitle}>Step 3</Text>
+            <Text style={styles.stepDescription}>
+              Submit your entry and wait for our experts to review and verify your discovery.
+            </Text>
+          </View>
+        </View>
       </View>
 
-      {/* Fotocamera */}
-      <View style={styles.cameraContainer}>
-        <TouchableOpacity onPress={takePhoto} style={styles.cameraButton}>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={takePhoto}>
           <Text style={styles.buttonText}>Take Photo</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Modal per la foto scattata */}
       <Modal visible={showModal} animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalContent}>
-          {photo && <Image source={{ uri: photo }} style={styles.capturedImage} />}
-          <TextInput
-            style={styles.input}
-            placeholder="Enter the name of the gem"
-            value={name}
-            onChangeText={setName}
-          />
-          <TextInput
-            style={[styles.input, styles.textarea]}
-            placeholder="Enter a comment"
-            value={comment}
-            onChangeText={setComment}
-            multiline
-          />
-          <Button
-            title={isSubmitting ? "Submitting..." : "Submit"}
-            onPress={handleSubmit}
-            disabled={isSubmitting}
-          />
-        </View>
-      </Modal>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"} // Adattamento per tastiera
+        >
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{ flex: 1 }}>
+              <ScrollView
+                ref={scrollViewRef}
+                onLayout={(event) => {
+                  const { layout } = event.nativeEvent;
+                  console.log("Layout aggiornato:", layout);
+                }}
+                contentContainerStyle={styles.modalContent}
+                keyboardShouldPersistTaps="handled"
+              >
+                <SafeAreaView style={styles.modalContainer}>
+                  {/* Pulsante di chiusura */}
+                  <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
+                    <Text style={styles.closeButtonText}>X</Text>
+                  </TouchableOpacity>
 
-      {/* Modal per il risultato dell'invio */}
-      <Modal
-        visible={isSubmitted}
-        animationType="slide"
-        onRequestClose={() => setIsSubmitted(false)}
-      >
-        <View style={styles.modalContent}>
-          <Text>{submitMessage}</Text>
-          <Button title="Close" onPress={() => setIsSubmitted(false)} />
-        </View>
+                  <SafeAreaView style={styles.modalContainerinside}>
+                    <Text style={styles.title}>Add a New Gem</Text>
+                    {photo && <Image source={{ uri: photo }} style={styles.capturedImage} />}
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Name:</Text>
+                      <TextInput
+                        ref={nameInputRef}
+                        style={styles.input}
+                        placeholder="Enter the name of the gem"
+                        placeholderTextColor="gray"
+                        value={name}
+                        onChangeText={setName}
+                        onFocus={() => scrollToInput(nameInputRef)}
+                      />
+                    </View>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Description:</Text>
+                      <TextInput
+                        ref={commentInputRef}
+                        style={[styles.input, styles.textarea]}
+                        placeholder="Enter a brief description"
+                        placeholderTextColor="gray"
+                        value={comment}
+                        onChangeText={setComment}
+                        multiline
+                        onFocus={() => scrollToInput(commentInputRef)}
+                      />
+                    </View>
+                  </SafeAreaView>
+
+                  {/* Pulsante Submit */}
+                  <View style={styles.fixedButtonContainer}>
+                    <TouchableOpacity onPress={() => console.log("Submit pressed!")}>
+                      <Text style={styles.buttonText}>Submit</Text>
+                    </TouchableOpacity>
+                  </View>
+                </SafeAreaView>
+              </ScrollView>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
       </Modal>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
     backgroundColor: "white",
+    paddingHorizontal: 20,
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
+    textAlign: "center",
+    marginVertical: 20,
+    color: "#333",
+  },
+  stepsContainer: {
+    flex: 1,
+    marginVertical: 40,
+  },
+  stepRow: {
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
   },
-  cameraContainer: {
-    marginBottom: 20,
+  stepImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 100,
+    borderWidth: 4,
+    margin: 20,
+
+    resizeMode: "contain",
   },
-  cameraButton: {
+  stepTextContainer: {
+    width: "50%",
+  },
+  stepTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#black",
+  },
+  stepDescription: {
+    fontSize: 14,
+    color: "#555",
+    marginTop: 5,
+  },
+  fixedButtonContainer: {
+    position: "absolute",
+    marginBottom: 30,
+    bottom: 0,
+    left: 70,
+    right: 70,
     backgroundColor: "black",
-    padding: 15,
-    paddingLeft: 70,
-    paddingRight: 70,
     borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonContainer: {
+    position: "absolute",
+    bottom: 100,
+    left: 70,
+    right: 70,
+    backgroundColor: "black",
+    borderRadius: 30,
+    elevation: 4, // Per ombre su Android
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 65,
+    left: 25,
+    backgroundColor: "black", // Sfondo semi-trasparente
+    width: 35, // Altezza e larghezza uguali per un cerchio
+    height: 35,
+    borderRadius: 20, // Raggio uguale alla metà della dimensione
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 1,
+  },
+  closeButtonText: {
+    color: "white",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+
+  modalContainerinside: {
+    marginBottom: 100,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: "white",
+    paddingHorizontal: 20,
+  },
+  modalContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingBottom: 0, // Spazio extra per il pulsante
   },
   buttonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
   },
-  modalContent: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
   capturedImage: {
     width: 200,
     height: 200,
-    marginBottom: 20,
+    marginBottom: 40,
+    marginTop: 30,
+    alignSelf: "center",
+    borderRadius: 10,
+  },
+  fieldContainer: {
+    marginTop: 20,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
   },
   input: {
     height: 40,
-    width: "100%",
     borderColor: "gray",
     borderWidth: 1,
-    marginBottom: 15,
     padding: 10,
     borderRadius: 5,
   },
   textarea: {
     height: 80,
     textAlignVertical: "top",
-  },
-  image: {
-    width: 50, // Cambia la larghezza come desideri
-    height: 50, // Cambia l'altezza come desideri
-    resizeMode: "contain", // Opzionale, per mantenere le proporzioni corrette
-    //transform: [{ rotate: '15deg' }], // Aggiungi la rotazione desiderata
-    marginBottom: 20,
-    marginLeft: 5,
-  },
-  rowContainer: {
-    flexDirection: "row", // Dispone gli elementi in orizzontale
-    alignItems: "center", // Centra verticalmente gli elementi
-    marginBottom: 5,
   },
 });
 
