@@ -27,21 +27,38 @@ const AddGem = () => {
   const scrollViewRef = useRef<ScrollView>(null);
   const nameInputRef = useRef<TextInput>(null);
   const commentInputRef = useRef<TextInput>(null);
+  const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleSubmission = () => {
+    if (!name.trim() || !comment.trim()) {
+      setErrorMessage("Both fields are required!");
+      return;
+    }
+
+    // Reset del messaggio di errore
+    setErrorMessage(null);
+
+    // Mostra il modal di conferma
+    setConfirmationVisible(true);
+  };
+
   const resetModal = () => {
-    setShowModal(false);
-    setKeyboardVisible(false);
-    Keyboard.dismiss();
+    setConfirmationVisible(false); // Nasconde il modal di conferma
+
+    // Reset dei dati
     setName("");
     setComment("");
     setPhoto(null);
     setLat(null);
     setLon(null);
 
+    // Ritardo di 300ms prima di chiudere il modal
     setTimeout(() => {
-      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
-    }, 1000);
+      setShowModal(false); // Chiude il modal principale dopo il reset
+    }, 50);
   };
 
   // Aggiungi questo useEffect per gestire gli eventi della tastiera
@@ -205,6 +222,9 @@ const AddGem = () => {
                         onFocus={() => scrollToInput(commentInputRef)}
                       />
                     </View>
+                    {/* Messaggio di errore */}
+                    {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+
                     <View
                       style={[
                         styles.submitButtonContainer,
@@ -213,7 +233,7 @@ const AddGem = () => {
                           : styles.submitButtonKeyboardClosed,
                       ]}
                     >
-                      <TouchableOpacity onPress={() => console.log("Submit pressed!")}>
+                      <TouchableOpacity onPress={handleSubmission}>
                         <Text style={styles.buttonText}>Submit</Text>
                       </TouchableOpacity>
                     </View>
@@ -223,12 +243,88 @@ const AddGem = () => {
             </TouchableWithoutFeedback>
           </KeyboardAvoidingView>
         </View>
+        <Modal
+          visible={confirmationVisible}
+          transparent={true} // Aggiunto transparent
+          animationType="fade"
+          statusBarTranslucent
+        >
+          <View style={styles.confirmationOverlay}>
+            <View style={styles.confirmationBox}>
+              <Text style={styles.confirmationText}>Submission successful! </Text>
+              <Text style={styles.confirmationText}>
+                We'll review your gem soon. Check your email for updates.{" "}
+              </Text>
+
+              <TouchableOpacity
+                style={styles.okButton}
+                onPress={() => {
+                  resetModal();
+                }}
+              >
+                <Text style={styles.okButtonText}>OK</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </Modal>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  errorText: {
+    color: "red",
+    fontSize: 14,
+    marginTop: 10,
+    textAlign: "center",
+  },
+  confirmationOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)", // Più scuro per distinguere meglio
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999, // Valore elevato per sovrapposizione
+    elevation: 10, // Necessario per Android
+  },
+
+  confirmationBox: {
+    width: 300,
+    padding: 20,
+    backgroundColor: "white",
+    borderRadius: 10,
+    alignItems: "center",
+    zIndex: 1000000,
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  confirmationText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 20,
+  },
+  okButton: {
+    backgroundColor: "black",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  okButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
   submitButtonContainer: {
     backgroundColor: "black",
     borderRadius: 30,
