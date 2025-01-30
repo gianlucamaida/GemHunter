@@ -36,6 +36,7 @@ export default function MainPage() {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false); // Flag per il form
   const [formErrors, setFormErrors] = useState<string[]>([]); // Per raccogliere gli errori di validazione
   const navigation = useNavigation();
+  const [itinnerary, setItinnerary] = useState<Attraction[]>([]);
 
   const PATH1 = attractions;
   const PATH2 = attractions.slice(0, 3);
@@ -44,7 +45,10 @@ export default function MainPage() {
   useEffect(() => {
     const loadAttractions = async () => {
       const results = await getAttractions();
-      //console.log("Loaded Attractions EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE:", results);
+      console.log(
+        "Loaded Attractions gggggggggggggggggggggggggggggggggggggggggggggggggggggggggE:",
+        results
+      );
       setAttractions(results); // Imposta le attrazioni nello state
     };
     loadAttractions();
@@ -75,10 +79,10 @@ export default function MainPage() {
     if (!totalTime || isNaN(Number(totalTime)) || Number(totalTime) <= 0) {
       errors.push("Please enter a valid total time.");
     }
-    if (!maxAttractions || isNaN(Number(maxAttractions)) || Number(maxAttractions) <= 0) {
+    if (!maxAttractions || isNaN(Number(maxAttractions)) || Number(maxAttractions) < 0) {
       errors.push("Please enter a valid number of attractions.");
     }
-    if (!maxGems || isNaN(Number(maxGems)) || Number(maxGems) <= 0) {
+    if (!maxGems || isNaN(Number(maxGems)) || Number(maxGems) < 0) {
       errors.push("Please enter a valid number of gems.");
     }
 
@@ -94,8 +98,17 @@ export default function MainPage() {
   const handleSubmit = () => {
     const isValid = validateForm();
     if (isValid) {
+      if (Number(maxAttractions) === 3 && Number(maxGems) === 2) {
+        // itinerario completo
+        setItinnerary(PATH1);
+      } else if (Number(maxAttractions) === 3 && Number(maxGems) === 0) {
+        // itinerario con solo attrazioni
+        setItinnerary(PATH2);
+      } else if (Number(maxAttractions) === 0 && Number(maxGems) === 2) {
+        // itinerario con solo gemme
+        setItinnerary(PATH3);
+      }
       setFormSubmitted(true); // Procedi con l'invio del form
-      // Qui puoi implementare la logica per calcolare l'itinerario
     }
   };
 
@@ -151,6 +164,7 @@ export default function MainPage() {
 
   return (
     <>
+      {/* form da compilare */}
       {!formSubmitted && (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View style={styles.container}>
@@ -207,6 +221,7 @@ export default function MainPage() {
         </TouchableWithoutFeedback>
       )}
 
+      {/* itinerario */}
       {formSubmitted && (
         <View style={styles.container}>
           <TouchableOpacity
@@ -228,7 +243,7 @@ export default function MainPage() {
             showsUserLocation={true}
           >
             {/* Renderizza i marker per le attrazioni */}
-            {attractions.map((attraction) => renderMarker(attraction))}
+            {itinnerary.map((attraction) => renderMarker(attraction))}
           </MapView>
 
           {/* Modal */}
