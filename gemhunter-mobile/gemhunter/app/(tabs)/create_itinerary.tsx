@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Button, Modal, Image, ImageBackground, TextInput, StyleSheet, TouchableOpacity, TouchableWithoutFeedback, Keyboard, Alert  } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  Modal,
+  Image,
+  ImageBackground,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { Attraction } from "@/constants/Attraction";
@@ -14,7 +27,7 @@ export default function MainPage() {
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [selectedAttractions, setSelectedAttractions] = useState<Attraction[]>([]);
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null); // Attrazione selezionata
-   const [modalVisible, setModalVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [routeData, setRouteData] = useState<any>(null); // Modifica tipo in base alla struttura che desideri
   const [totalTime, setTotalTime] = useState<string>(""); // Tempo disponibile
@@ -23,6 +36,10 @@ export default function MainPage() {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false); // Flag per il form
   const [formErrors, setFormErrors] = useState<string[]>([]); // Per raccogliere gli errori di validazione
   const navigation = useNavigation();
+
+  const PATH1 = attractions;
+  const PATH2 = attractions.slice(0, 3);
+  const PATH3 = attractions.slice(3, 5);
 
   useEffect(() => {
     const loadAttractions = async () => {
@@ -50,7 +67,6 @@ export default function MainPage() {
 
     getUserLocation();
   }, []);
-  
 
   // Funzione di validazione
   const validateForm = (): boolean => {
@@ -98,194 +114,201 @@ export default function MainPage() {
   };
 
   // Funzione per rendere il marker per ogni attrazione
-    const renderMarker = (attraction: Attraction) => {
-      //console.log(attraction);
-      if (attraction.isGem === 1 && attraction.isFound === 0) {
-        return (
-          <Circle
-            key={attraction.id}
-            center={{ latitude: attraction.lat, longitude: attraction.lon }}
-            radius={300}
-            strokeColor="darkgreen"
-            fillColor="rgba(0, 128, 0, 0.6)"
-          />
-        );
-      } else if (attraction.isGem === 0) {
-        return (
-          <Marker
-            key={attraction.id}
-            coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-            icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-            onPress={() => openModal(attraction)}
-            pinColor="black"
-          />
-        );
-      } else if (attraction.isGem === 1 && attraction.isFound === 1) {
-        return (
-          <Marker
-            key={attraction.id}
-            coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-            icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-            onPress={() => openModal(attraction)}
-            pinColor="green"
-          />
-        );
-      }
-    };
+  const renderMarker = (attraction: Attraction) => {
+    //console.log(attraction);
+    if (attraction.isGem === 1 && attraction.isFound === 0) {
+      return (
+        <Circle
+          key={attraction.id}
+          center={{ latitude: attraction.lat, longitude: attraction.lon }}
+          radius={300}
+          strokeColor="darkgreen"
+          fillColor="rgba(0, 128, 0, 0.6)"
+        />
+      );
+    } else if (attraction.isGem === 0) {
+      return (
+        <Marker
+          key={attraction.id}
+          coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
+          onPress={() => openModal(attraction)}
+          pinColor="black"
+        />
+      );
+    } else if (attraction.isGem === 1 && attraction.isFound === 1) {
+      return (
+        <Marker
+          key={attraction.id}
+          coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
+          onPress={() => openModal(attraction)}
+          pinColor="green"
+        />
+      );
+    }
+  };
 
   return (
     <>
-    {!formSubmitted && (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <View style={styles.container}>
-        <Text style={styles.title}>Create your itinerary!</Text>
+      {!formSubmitted && (
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <View style={styles.container}>
+            <Text style={styles.title}>Create your itinerary!</Text>
 
-        {/* Messaggi di errore */}
-        {formErrors.length > 0 && (
-          <View style={styles.errorContainer}>
-            {formErrors.map((error, index) => (
-              <Text key={index} style={styles.errorText}>
-                {error}
-              </Text>
-            ))}
-          </View>
-        )}
-
-        {/* Form per inserire i dati */}
-        {!formSubmitted && (
-          <View style={styles.form}>
-            <TextInput
-              style={styles.input}
-              placeholder="Avaiable Time (minutes)"
-              value={totalTime}
-              onChangeText={setTotalTime}
-              keyboardType="numeric"
-              placeholderTextColor="#666" // Colore più scuro per il placeholder
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Number of Attractions to see"
-              value={maxAttractions}
-              onChangeText={setMaxAttractions}
-              keyboardType="numeric"
-              placeholderTextColor="#666" // Colore più scuro per il placeholder
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Number of Gems to see"
-              value={maxGems}
-              onChangeText={setMaxGems}
-              keyboardType="numeric"
-              placeholderTextColor="#666" // Colore più scuro per il placeholder
-            />
-
-            {/* Bottone per inviare il form */}
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-                <Text style={styles.buttonText}>Create</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      </View>
-    </TouchableWithoutFeedback>
-    )}
-
-    {formSubmitted && (
-      <View style={styles.container}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => setFormSubmitted(false)} // Imposta formSubmitted a false
-        >
-      <Text style={styles.backButtonText}>Back</Text>
-    </TouchableOpacity>
-
-      {/* Mappa */}
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: 45.0703,
-          longitude: 7.6869,
-          latitudeDelta: 0.05, // Zoom
-          longitudeDelta: 0.05, // Zoom
-        }}
-        showsUserLocation={true}
-      >
-        {/* Renderizza i marker per le attrazioni */}
-        {attractions.map((attraction) => renderMarker(attraction))}
-      </MapView>
-
-      {/* Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          {/* attrazione trovata */}
-          {selectedAttraction &&
-            selectedAttraction.isFound === 1 &&
-            selectedAttraction.isGem === 0 && (
-              <View style={styles.modalContent}>
-                <>
-                  <Image
-                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                    style={styles.attractionImage}
-                  />
-                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                  <Text style={styles.attractionDescription}>{selectedAttraction.description}</Text>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
-                  </TouchableOpacity>
-                </>
+            {/* Messaggi di errore */}
+            {formErrors.length > 0 && (
+              <View style={styles.errorContainer}>
+                {formErrors.map((error, index) => (
+                  <Text key={index} style={styles.errorText}>
+                    {error}
+                  </Text>
+                ))}
               </View>
             )}
-          {/* Gemma trovata */}
-          {selectedAttraction &&
-            selectedAttraction.isFound === 1 &&
-            selectedAttraction.isGem === 1 && (
-              <View style={styles.modalContentGemFound}>
-                <ImageBackground
-                  source={require("../../assets/images/gem_background4.png")}
-                  style={styles.modalBackgroundImage}
-                  imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
-                >
-                  <Image
-                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                    style={styles.attractionImage}
-                  />
-                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                  <Text style={styles.attractionDescription}>{selectedAttraction.description}</Text>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
+
+            {/* Form per inserire i dati */}
+            {!formSubmitted && (
+              <View style={styles.form}>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Avaiable Time (minutes)"
+                  value={totalTime}
+                  onChangeText={setTotalTime}
+                  keyboardType="numeric"
+                  placeholderTextColor="#666" // Colore più scuro per il placeholder
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Number of Attractions to see"
+                  value={maxAttractions}
+                  onChangeText={setMaxAttractions}
+                  keyboardType="numeric"
+                  placeholderTextColor="#666" // Colore più scuro per il placeholder
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Number of Gems to see"
+                  value={maxGems}
+                  onChangeText={setMaxGems}
+                  keyboardType="numeric"
+                  placeholderTextColor="#666" // Colore più scuro per il placeholder
+                />
+
+                {/* Bottone per inviare il form */}
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                    <Text style={styles.buttonText}>Create</Text>
                   </TouchableOpacity>
-                </ImageBackground>
+                </View>
               </View>
             )}
-          {/* attrazione non trovata */}
-          {selectedAttraction && selectedAttraction.isFound === 0 && (
-            <View style={styles.modalContent}>
-              <>
-                <Text style={styles.attractionDescription}>
-                  {"The selected attraction has not been found yet."}
-                </Text>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </>
+          </View>
+        </TouchableWithoutFeedback>
+      )}
+
+      {formSubmitted && (
+        <View style={styles.container}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setFormSubmitted(false)} // Imposta formSubmitted a false
+          >
+            <Text style={styles.backButtonText}>Back</Text>
+          </TouchableOpacity>
+
+          {/* Mappa */}
+          <MapView
+            style={styles.map}
+            initialRegion={{
+              latitude: 45.0703,
+              longitude: 7.6869,
+              latitudeDelta: 0.05, // Zoom
+              longitudeDelta: 0.05, // Zoom
+            }}
+            showsUserLocation={true}
+          >
+            {/* Renderizza i marker per le attrazioni */}
+            {attractions.map((attraction) => renderMarker(attraction))}
+          </MapView>
+
+          {/* Modal */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              {/* attrazione trovata */}
+              {selectedAttraction &&
+                selectedAttraction.isFound === 1 &&
+                selectedAttraction.isGem === 0 && (
+                  <View style={styles.modalContent}>
+                    <>
+                      <Image
+                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                        style={styles.attractionImage}
+                      />
+                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                      <Text style={styles.attractionDescription}>
+                        {selectedAttraction.description}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => setModalVisible(false)}
+                      >
+                        <Text style={styles.closeButtonText}>Close</Text>
+                      </TouchableOpacity>
+                    </>
+                  </View>
+                )}
+              {/* Gemma trovata */}
+              {selectedAttraction &&
+                selectedAttraction.isFound === 1 &&
+                selectedAttraction.isGem === 1 && (
+                  <View style={styles.modalContentGemFound}>
+                    <ImageBackground
+                      source={require("../../assets/images/gem_background4.png")}
+                      style={styles.modalBackgroundImage}
+                      imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
+                    >
+                      <Image
+                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                        style={styles.attractionImage}
+                      />
+                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                      <Text style={styles.attractionDescription}>
+                        {selectedAttraction.description}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => setModalVisible(false)}
+                      >
+                        <Text style={styles.closeButtonText}>Close</Text>
+                      </TouchableOpacity>
+                    </ImageBackground>
+                  </View>
+                )}
+              {/* attrazione non trovata */}
+              {selectedAttraction && selectedAttraction.isFound === 0 && (
+                <View style={styles.modalContent}>
+                  <>
+                    <Text style={styles.attractionDescription}>
+                      {"The selected attraction has not been found yet."}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={() => setModalVisible(false)}
+                    >
+                      <Text style={styles.closeButtonText}>Close</Text>
+                    </TouchableOpacity>
+                  </>
+                </View>
+              )}
             </View>
-          )}
+          </Modal>
         </View>
-      </Modal>
-    </View>
-    )}
+      )}
     </>
   );
 }
@@ -437,5 +460,3 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
-
