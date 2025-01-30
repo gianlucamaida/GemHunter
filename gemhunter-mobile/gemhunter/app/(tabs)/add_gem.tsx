@@ -252,7 +252,7 @@ const AddGem = () => {
           <View style={styles.confirmationOverlay}>
             <View style={styles.confirmationBox}>
               <Text style={styles.confirmationText}>Submission successful! </Text>
-              <Text style={styles.confirmationText}>
+              <Text style={styles.confirmationTextnotbold}>
                 We'll review your gem soon. Check your email for updates.{" "}
               </Text>
 
@@ -312,6 +312,10 @@ const styles = StyleSheet.create({
   confirmationText: {
     fontSize: 18,
     fontWeight: "bold",
+    marginBottom: 20,
+  },
+  confirmationTextnotbold: {
+    fontSize: 16,
     marginBottom: 20,
   },
   okButton: {

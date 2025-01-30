@@ -38,7 +38,6 @@ const Profile = () => {
           <Image source={userData.profileImage} style={styles.profileImage} />
         </TouchableOpacity>
         <Text style={styles.username}>{userData.username}</Text>
-        <Text style={styles.changeUserText}>Tap to change user/modify</Text>
       </View>
 
       {/* Details Section */}
