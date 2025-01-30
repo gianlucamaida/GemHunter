@@ -12,6 +12,7 @@ import {
 import MapView, { Marker, Circle } from "react-native-maps"; // Importa i componenti di react-native-maps
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
+import { useLocalSearchParams } from "expo-router";
 
 import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
 import { getAttractions } from "@/dao/attractionsDao";
@@ -26,7 +27,11 @@ export default function MainPage() {
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null); // Attrazione selezionata
   const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation<any>();
-
+  const { itinerary } = useLocalSearchParams();
+  const parsedItinerary = typeof itinerary === "string" ? JSON.parse(itinerary) : [];
+  useEffect(() => {
+    console.log("Receiveeeeeeeeeeeeeeeeeeeeeeeeeeeeeed itinerary:", parsedItinerary);
+  }, [parsedItinerary]);
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),

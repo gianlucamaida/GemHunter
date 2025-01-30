@@ -1,23 +1,23 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  Button,
-  Modal,
-  Image,
-  ImageBackground,
-  TextInput,
-  StyleSheet,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  Keyboard,
-  Alert,
-} from "react-native";
+import { useRouter } from "expo-router";
+
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { Attraction } from "@/constants/Attraction";
 import { getAttractions } from "@/dao/attractionsDao";
 import MapView, { Marker, Circle } from "react-native-maps";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  StyleSheet,
+  TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Alert,
+  SafeAreaView,
+  Image,
+} from "react-native";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -26,18 +26,18 @@ export default function MainPage() {
   } | null>(null);
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [selectedAttractions, setSelectedAttractions] = useState<Attraction[]>([]);
-  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null); // Attrazione selezionata
+  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [routeData, setRouteData] = useState<any>(null); // Modifica tipo in base alla struttura che desideri
-  const [totalTime, setTotalTime] = useState<string>(""); // Tempo disponibile
-  const [maxAttractions, setMaxAttractions] = useState<string>(""); // Numero massimo di attrazioni
-  const [maxGems, setMaxGems] = useState<string>(""); // Numero massimo di gemme
-  const [formSubmitted, setFormSubmitted] = useState<boolean>(false); // Flag per il form
-  const [formErrors, setFormErrors] = useState<string[]>([]); // Per raccogliere gli errori di validazione
+  const [routeData, setRouteData] = useState<any>(null);
+  const [totalTime, setTotalTime] = useState<string>("");
+  const [maxAttractions, setMaxAttractions] = useState<string>("");
+  const [maxGems, setMaxGems] = useState<string>("");
+  const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
+  const [formErrors, setFormErrors] = useState<string[]>([]);
   const navigation = useNavigation();
-  const [itinnerary, setItinnerary] = useState<Attraction[]>([]);
-
+  const [itinerary, setItinerary] = useState<Attraction[]>([]);
+  const router = useRouter();
   const PATH1 = attractions;
   const PATH2 = attractions.slice(0, 3);
   const PATH3 = attractions.slice(3, 5);
@@ -45,17 +45,12 @@ export default function MainPage() {
   useEffect(() => {
     const loadAttractions = async () => {
       const results = await getAttractions();
-      console.log(
-        "Loaded Attractions gggggggggggggggggggggggggggggggggggggggggggggggggggggggggE:",
-        results
-      );
-      setAttractions(results); // Imposta le attrazioni nello state
+      setAttractions(results);
     };
     loadAttractions();
   }, []);
 
   useEffect(() => {
-    // Recupera la posizione dell'utente al montaggio del componente
     const getUserLocation = async () => {
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status === "granted") {
@@ -72,10 +67,8 @@ export default function MainPage() {
     getUserLocation();
   }, []);
 
-  // Funzione di validazione
   const validateForm = (): boolean => {
     const errors: string[] = [];
-    // Controllo che i campi siano compilati
     if (!totalTime || isNaN(Number(totalTime)) || Number(totalTime) <= 0) {
       errors.push("Please enter a valid total time.");
     }
@@ -94,83 +87,32 @@ export default function MainPage() {
     return true;
   };
 
-  // Funzione di submit
   const handleSubmit = () => {
     const isValid = validateForm();
     if (isValid) {
       if (Number(maxAttractions) === 3 && Number(maxGems) === 2) {
-        // itinerario completo
-        setItinnerary(PATH1);
+        setItinerary(PATH1);
       } else if (Number(maxAttractions) === 3 && Number(maxGems) === 0) {
-        // itinerario con solo attrazioni
-        setItinnerary(PATH2);
+        setItinerary(PATH2);
       } else if (Number(maxAttractions) === 0 && Number(maxGems) === 2) {
-        // itinerario con solo gemme
-        setItinnerary(PATH3);
+        setItinerary(PATH3);
       }
-      setFormSubmitted(true); // Procedi con l'invio del form
+      setFormSubmitted(true);
     }
   };
 
-  // Funzione per aprire il modal
   const openModal = (attraction: Attraction) => {
     setSelectedAttraction(attraction);
     setModalVisible(true);
   };
 
-  const imageMapping = {
-    "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
-    "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),
-    "granmadre_icon.jpg": require("../../assets/images/granmadre_icon.jpg"),
-    "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
-    "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
-  };
-
-  // Funzione per rendere il marker per ogni attrazione
-  const renderMarker = (attraction: Attraction) => {
-    //console.log(attraction);
-    if (attraction.isGem === 1 && attraction.isFound === 0) {
-      return (
-        <Circle
-          key={attraction.id}
-          center={{ latitude: attraction.lat, longitude: attraction.lon }}
-          radius={300}
-          strokeColor="darkgreen"
-          fillColor="rgba(0, 128, 0, 0.6)"
-        />
-      );
-    } else if (attraction.isGem === 0) {
-      return (
-        <Marker
-          key={attraction.id}
-          coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-          onPress={() => openModal(attraction)}
-          pinColor="black"
-        />
-      );
-    } else if (attraction.isGem === 1 && attraction.isFound === 1) {
-      return (
-        <Marker
-          key={attraction.id}
-          coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-          onPress={() => openModal(attraction)}
-          pinColor="green"
-        />
-      );
-    }
-  };
-
   return (
     <>
-      {/* form da compilare */}
       {!formSubmitted && (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <View style={styles.container}>
             <Text style={styles.title}>Create your itinerary!</Text>
 
-            {/* Messaggi di errore */}
             {formErrors.length > 0 && (
               <View style={styles.errorContainer}>
                 {formErrors.map((error, index) => (
@@ -181,7 +123,6 @@ export default function MainPage() {
               </View>
             )}
 
-            {/* Form per inserire i dati */}
             {!formSubmitted && (
               <View style={styles.form}>
                 <TextInput
@@ -190,7 +131,7 @@ export default function MainPage() {
                   value={totalTime}
                   onChangeText={setTotalTime}
                   keyboardType="numeric"
-                  placeholderTextColor="#666" // Colore più scuro per il placeholder
+                  placeholderTextColor="#666"
                 />
                 <TextInput
                   style={styles.input}
@@ -198,7 +139,7 @@ export default function MainPage() {
                   value={maxAttractions}
                   onChangeText={setMaxAttractions}
                   keyboardType="numeric"
-                  placeholderTextColor="#666" // Colore più scuro per il placeholder
+                  placeholderTextColor="#666"
                 />
                 <TextInput
                   style={styles.input}
@@ -206,10 +147,9 @@ export default function MainPage() {
                   value={maxGems}
                   onChangeText={setMaxGems}
                   keyboardType="numeric"
-                  placeholderTextColor="#666" // Colore più scuro per il placeholder
+                  placeholderTextColor="#666"
                 />
 
-                {/* Bottone per inviare il form */}
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity onPress={handleSubmit} style={styles.button}>
                     <Text style={styles.buttonText}>Create</Text>
@@ -221,114 +161,115 @@ export default function MainPage() {
         </TouchableWithoutFeedback>
       )}
 
-      {/* itinerario */}
       {formSubmitted && (
-        <View style={styles.container}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setFormSubmitted(false)} // Imposta formSubmitted a false
-          >
-            <Text style={styles.backButtonText}>Back</Text>
-          </TouchableOpacity>
-
-          {/* Mappa */}
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: 45.0703,
-              longitude: 7.6869,
-              latitudeDelta: 0.05, // Zoom
-              longitudeDelta: 0.05, // Zoom
-            }}
-            showsUserLocation={true}
-          >
-            {/* Renderizza i marker per le attrazioni */}
-            {itinnerary.map((attraction) => renderMarker(attraction))}
-          </MapView>
-
-          {/* Modal */}
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={styles.modalOverlay}>
-              {/* attrazione trovata */}
-              {selectedAttraction &&
-                selectedAttraction.isFound === 1 &&
-                selectedAttraction.isGem === 0 && (
-                  <View style={styles.modalContent}>
-                    <>
-                      <Image
-                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                        style={styles.attractionImage}
-                      />
-                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                      <Text style={styles.attractionDescription}>
-                        {selectedAttraction.description}
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setModalVisible(false)}
-                      >
-                        <Text style={styles.closeButtonText}>Close</Text>
-                      </TouchableOpacity>
-                    </>
-                  </View>
-                )}
-              {/* Gemma trovata */}
-              {selectedAttraction &&
-                selectedAttraction.isFound === 1 &&
-                selectedAttraction.isGem === 1 && (
-                  <View style={styles.modalContentGemFound}>
-                    <ImageBackground
-                      source={require("../../assets/images/gem_background4.png")}
-                      style={styles.modalBackgroundImage}
-                      imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
-                    >
-                      <Image
-                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                        style={styles.attractionImage}
-                      />
-                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                      <Text style={styles.attractionDescription}>
-                        {selectedAttraction.description}
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setModalVisible(false)}
-                      >
-                        <Text style={styles.closeButtonText}>Close</Text>
-                      </TouchableOpacity>
-                    </ImageBackground>
-                  </View>
-                )}
-              {/* attrazione non trovata */}
-              {selectedAttraction && selectedAttraction.isFound === 0 && (
-                <View style={styles.modalContent}>
-                  <>
-                    <Text style={styles.attractionDescription}>
-                      {"The selected attraction has not been found yet."}
-                    </Text>
-                    <TouchableOpacity
-                      style={styles.closeButton}
-                      onPress={() => setModalVisible(false)}
-                    >
-                      <Text style={styles.closeButtonText}>Close</Text>
-                    </TouchableOpacity>
-                  </>
-                </View>
-              )}
+        <SafeAreaView style={styles.container}>
+          <Text style={styles.title}>New Itinerary</Text>
+          <View style={styles.stepsContainer}>
+            <View style={styles.stepRow}>
+              <Image
+                source={require("../../assets/addgem_images/step1_img.png")}
+                style={styles.stepImage}
+              />
+              <View style={styles.stepTextContainer}>
+                <Text style={styles.stepTitle}>Step 1</Text>
+                <Text style={styles.stepDescription}>
+                  Take a clear photo of the gem you discovered. Ensure good lighting and focus.
+                </Text>
+              </View>
             </View>
-          </Modal>
-        </View>
+
+            <View style={styles.stepRow}>
+              <Image
+                source={require("../../assets/addgem_images/step2_img.png")}
+                style={styles.stepImage}
+              />
+              <View style={styles.stepTextContainer}>
+                <Text style={styles.stepTitle}>Step 2</Text>
+                <Text style={styles.stepDescription}>
+                  Fill out the form with the gem's name and a detailed description.
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.stepRow}>
+              <Image
+                source={require("../../assets/addgem_images/step3_img.png")}
+                style={styles.stepImage}
+              />
+              <View style={styles.stepTextContainer}>
+                <Text style={styles.stepTitle}>Step 3</Text>
+                <Text style={styles.stepDescription}>
+                  Submit your entry and wait for our experts to review and verify your discovery.
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.buttonContainer2}>
+            <TouchableOpacity
+              onPress={() => {
+                router.push({
+                  pathname: "/(tabs)",
+                  params: { itinerary: JSON.stringify(itinerary) },
+                });
+              }}
+            >
+              <Text style={styles.buttonText2}>Start Itinerary</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
       )}
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  buttonContainer2: {
+    position: "absolute",
+    bottom: 100,
+    left: 70,
+    right: 70,
+    backgroundColor: "black",
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonText2: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  stepsContainer: {
+    flex: 1,
+    marginVertical: 40,
+  },
+  stepRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  stepImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 100,
+    borderWidth: 4,
+    margin: 20,
+    resizeMode: "contain",
+  },
+  stepTextContainer: {
+    width: "50%",
+  },
+  stepTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#black",
+  },
+  stepDescription: {
+    fontSize: 14,
+    color: "#555",
+    marginTop: 5,
+  },
   container: {
     flex: 1,
     justifyContent: "center",
@@ -363,11 +304,11 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   inputPlaceholder: {
-    color: "#666", // Colore più scuro per il placeholder
+    color: "#666",
   },
   buttonContainer: {
     marginTop: 20,
-    alignItems: "center", // Centra il bottone
+    alignItems: "center",
   },
   button: {
     backgroundColor: "black",
@@ -375,14 +316,14 @@ const styles = StyleSheet.create({
     paddingLeft: 70,
     paddingRight: 70,
     borderRadius: 30,
-    justifyContent: "center", // Centra il contenuto all'interno del bottone
-    alignItems: "center", // Centra il contenuto orizzontalmente
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
-    textAlign: "center", // Centra il testo all'interno
+    textAlign: "center",
   },
   loadingContainer: {
     flex: 1,
@@ -396,7 +337,7 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)", // Sfondo scuro semi-trasparente
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -406,8 +347,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     alignItems: "center",
-    elevation: 5, // Ombra per Android
-    shadowColor: "#000", // Ombra per iOS
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -415,9 +356,9 @@ const styles = StyleSheet.create({
   modalContentGemFound: {
     width: "85%",
     borderRadius: 20,
-    overflow: "hidden", // Necessario per far sì che i bordi arrotondati vengano applicati correttamente all'ImageBackground
-    elevation: 5, // Ombra per Android
-    shadowColor: "#000", // Ombra per iOS
+    overflow: "hidden",
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -450,7 +391,7 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "black",
     borderRadius: 30,
-    elevation: 4, // Per ombre su Android
+    elevation: 4,
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
@@ -462,12 +403,12 @@ const styles = StyleSheet.create({
   },
   backButton: {
     position: "absolute",
-    top: 40, // Distanza dal bordo superiore
-    left: 20, // Distanza dal bordo sinistro
+    top: 40,
+    left: 20,
     backgroundColor: "black",
     padding: 10,
     borderRadius: 20,
-    zIndex: 1, // Assicurati che il pulsante stia sopra la mappa
+    zIndex: 1,
   },
   backButtonText: {
     color: "white",
