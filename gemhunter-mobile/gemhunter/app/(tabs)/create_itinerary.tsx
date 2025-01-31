@@ -180,7 +180,7 @@ export default function MainPage() {
 
           {/* summary */}
           <View style={styles.stepsContainer}>
-            {itinerary.map((attraction, index) => (
+            {itinerary?.map((attraction, index) => (
               <View key={index} style={styles.stepRow}>
                 <View style={styles.stepImage}>
                   <Image
