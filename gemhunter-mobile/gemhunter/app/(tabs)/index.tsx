@@ -17,6 +17,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
 import { getAttractions } from "@/dao/attractionsDao";
 import MapViewDirections from "react-native-maps-directions";
+import PopupStartHunt from "@/components/PopupStartHunt";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -28,10 +29,11 @@ export default function MainPage() {
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null); // Attrazione selezionata
   const [modalVisible, setModalVisible] = useState(false);
   const [allAttractions, setAllAttractions] = useState<Attraction[]>([]);
-  const navigation = useNavigation<any>();
   const { itinerary } = useLocalSearchParams();
   const parsedItinerary = typeof itinerary === "string" ? JSON.parse(itinerary) : null;
   const [itineraryState, setItineraryState] = useState<Attraction[] | null>(null);
+  const [huntMode, setHuntMode] = useState(false);
+  const [showStartHuntButton, setShowStartHuntButton] = useState(true);
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),
@@ -51,12 +53,24 @@ export default function MainPage() {
     setAttractions(allAttractions);
   };
 
+  const handleStartHunt = () => {
+    setHuntMode(true);
+    setShowStartHuntButton(false);
+    setAttractions(allAttractions);
+  };
+
+  const handleBackHuntButton = () => {
+    setHuntMode(false);
+    setShowStartHuntButton(true);
+    setAttractions(attractions.filter((attraction) => attraction.isFound === 1));
+  };
+
   useEffect(() => {
     const loadAttractions = async () => {
       try {
         const results = await getAttractions();
         // console.log(results);
-        setAttractions(results); // Imposta le attrazioni nello state
+        setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1)); // Imposta le attrazioni nello state
         setAllAttractions(results);
       } catch (error) {
         console.error("Failed to load attractions:", error);
@@ -160,6 +174,7 @@ export default function MainPage() {
       >
         {/* Renderizza i marker per le attrazioni */}
         {attractions.map((attraction) => renderMarker(attraction))}
+
         {userLocation && itineraryState && (
           <MapViewDirections
             origin={userLocation}
@@ -185,6 +200,16 @@ export default function MainPage() {
           <Text style={styles.backButtonText}>←</Text>
         </TouchableOpacity>
       )}
+
+      {/* Back Button */}
+      {!showStartHuntButton && (
+        <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+      )}
+
+      {/* Popup */}
+      {huntMode && <PopupStartHunt />}
 
       {/* Modal */}
       <Modal
@@ -257,11 +282,13 @@ export default function MainPage() {
       </Modal>
 
       {/* Bottone Start Hunt */}
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("FreeRoam")}>
-          <Text style={styles.buttonText}>Start Hunt</Text>
-        </TouchableOpacity>
-      </View>
+      {showStartHuntButton && (
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={handleStartHunt}>
+            <Text style={styles.buttonText}>Start Hunt</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
