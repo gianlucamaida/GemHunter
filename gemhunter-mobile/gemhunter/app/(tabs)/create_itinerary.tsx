@@ -41,6 +41,13 @@ export default function MainPage() {
   const PATH1 = attractions;
   const PATH2 = attractions.slice(0, 3);
   const PATH3 = attractions.slice(3, 5);
+  const imageMapping = {
+    "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
+    "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),
+    "granmadre_icon.jpg": require("../../assets/images/granmadre_icon.jpg"),
+    "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
+    "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
+  };
 
   useEffect(() => {
     const loadAttractions = async () => {
@@ -96,14 +103,20 @@ export default function MainPage() {
         setItinerary(PATH2);
       } else if (Number(maxAttractions) === 0 && Number(maxGems) === 2) {
         setItinerary(PATH3);
+      } else {
+        //error
       }
       setFormSubmitted(true);
     }
   };
 
-  const openModal = (attraction: Attraction) => {
-    setSelectedAttraction(attraction);
-    setModalVisible(true);
+  const reset = () => {
+    setFormSubmitted(false);
+    setTotalTime("");
+    setMaxAttractions("");
+    setMaxGems("");
+    // setSelectedAttraction(attraction);
+    // setModalVisible(true);
   };
 
   return (
@@ -164,45 +177,26 @@ export default function MainPage() {
       {formSubmitted && (
         <SafeAreaView style={styles.container}>
           <Text style={styles.title}>New Itinerary</Text>
+
+          {/* summary */}
           <View style={styles.stepsContainer}>
-            <View style={styles.stepRow}>
-              <Image
-                source={require("../../assets/addgem_images/step1_img.png")}
-                style={styles.stepImage}
-              />
-              <View style={styles.stepTextContainer}>
-                <Text style={styles.stepTitle}>Step 1</Text>
-                <Text style={styles.stepDescription}>
-                  Take a clear photo of the gem you discovered. Ensure good lighting and focus.
-                </Text>
+            {itinerary.map((attraction, index) => (
+              <View key={index} style={styles.stepRow}>
+                <View style={styles.stepImage}>
+                  <Image
+                    source={imageMapping[attraction.icon as keyof typeof imageMapping]}
+                    style={styles.stepImageinside}
+                  />
+                </View>
+                <View style={styles.stepTextContainer}>
+                  <Text style={styles.stepTitle}>Stop {index + 1}</Text>
+                  <Text style={styles.attractionName}>{attraction.name}</Text>
+                  <Text style={styles.attractionType}>
+                    {attraction.isGem === 1 ? "Hidden Gem" : "Attraction"}
+                  </Text>
+                </View>
               </View>
-            </View>
-
-            <View style={styles.stepRow}>
-              <Image
-                source={require("../../assets/addgem_images/step2_img.png")}
-                style={styles.stepImage}
-              />
-              <View style={styles.stepTextContainer}>
-                <Text style={styles.stepTitle}>Step 2</Text>
-                <Text style={styles.stepDescription}>
-                  Fill out the form with the gem's name and a detailed description.
-                </Text>
-              </View>
-            </View>
-
-            <View style={styles.stepRow}>
-              <Image
-                source={require("../../assets/addgem_images/step3_img.png")}
-                style={styles.stepImage}
-              />
-              <View style={styles.stepTextContainer}>
-                <Text style={styles.stepTitle}>Step 3</Text>
-                <Text style={styles.stepDescription}>
-                  Submit your entry and wait for our experts to review and verify your discovery.
-                </Text>
-              </View>
-            </View>
+            ))}
           </View>
 
           <View style={styles.buttonContainer2}>
@@ -212,6 +206,7 @@ export default function MainPage() {
                   pathname: "/(tabs)",
                   params: { itinerary: JSON.stringify(itinerary) },
                 });
+                reset();
               }}
             >
               <Text style={styles.buttonText2}>Start Itinerary</Text>
@@ -224,22 +219,6 @@ export default function MainPage() {
 }
 
 const styles = StyleSheet.create({
-  buttonContainer2: {
-    position: "absolute",
-    bottom: 100,
-    left: 70,
-    right: 70,
-    backgroundColor: "black",
-    borderRadius: 30,
-    padding: 15,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonText2: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
   stepsContainer: {
     flex: 1,
     marginVertical: 40,
@@ -256,6 +235,11 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     margin: 20,
     resizeMode: "contain",
+    overflow: "hidden",
+  },
+  stepImageinside: {
+    width: "100%",
+    height: "100%",
   },
   stepTextContainer: {
     width: "50%",
@@ -270,6 +254,63 @@ const styles = StyleSheet.create({
     color: "#555",
     marginTop: 5,
   },
+
+  itineraryList: {
+    width: "90%",
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  itineraryItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  attractionIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 15,
+  },
+  attractionInfo: {
+    flex: 1,
+  },
+  attractionName: {
+    fontSize: 16,
+    color: "#000",
+  },
+  attractionType: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+  },
+  buttonContainer2: {
+    position: "absolute",
+    bottom: 100,
+    left: 70,
+    right: 70,
+    backgroundColor: "black",
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  buttonText2: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+
   container: {
     flex: 1,
     justifyContent: "center",
