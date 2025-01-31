@@ -36,7 +36,7 @@ export default function MainPage() {
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<string[]>([]);
   const navigation = useNavigation();
-  const [itinerary, setItinerary] = useState<Attraction[]>([]);
+  const [itinerary, setItinerary] = useState<Attraction[]>();
   const router = useRouter();
   const PATH1 = attractions;
   const PATH2 = attractions.slice(0, 3);
