@@ -16,6 +16,7 @@ import { useLocalSearchParams } from "expo-router";
 
 import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
 import { getAttractions } from "@/dao/attractionsDao";
+import MapViewDirections from "react-native-maps-directions";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -26,12 +27,11 @@ export default function MainPage() {
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null); // Attrazione selezionata
   const [modalVisible, setModalVisible] = useState(false);
+  const [allAttractions, setAllAttractions] = useState<Attraction[]>([]);
   const navigation = useNavigation<any>();
   const { itinerary } = useLocalSearchParams();
-  const parsedItinerary = typeof itinerary === "string" ? JSON.parse(itinerary) : [];
-  useEffect(() => {
-    console.log("Receiveeeeeeeeeeeeeeeeeeeeeeeeeeeeeed itinerary:", parsedItinerary);
-  }, [parsedItinerary]);
+  const parsedItinerary = typeof itinerary === "string" ? JSON.parse(itinerary) : null;
+  const [itineraryState, setItineraryState] = useState<Attraction[] | null>(null);
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),
@@ -41,11 +41,23 @@ export default function MainPage() {
   };
 
   useEffect(() => {
+    console.log("Receiveeeeeeeeeeeeeeeeeeeeeeeeeeeeeed itinerary:", parsedItinerary);
+    setAttractions(parsedItinerary);
+    setItineraryState(parsedItinerary);
+  }, [itinerary]);
+
+  const handleBackButton = () => {
+    setItineraryState(null);
+    setAttractions(allAttractions);
+  };
+
+  useEffect(() => {
     const loadAttractions = async () => {
       try {
         const results = await getAttractions();
         // console.log(results);
         setAttractions(results); // Imposta le attrazioni nello state
+        setAllAttractions(results);
       } catch (error) {
         console.error("Failed to load attractions:", error);
       }
@@ -88,7 +100,7 @@ export default function MainPage() {
     getUserLocation();
   }, []);
 
-  if (!userLocation || attractions.length === 0) {
+  if (!userLocation || !attractions) {
     return (
       <View style={styles.loadingContainer}>
         <Text>Loading...</Text>
@@ -136,6 +148,7 @@ export default function MainPage() {
     <View style={styles.container}>
       {/* Mappa */}
       <MapView
+        key={attractions.length}
         style={styles.map}
         initialRegion={{
           latitude: 45.0703,
@@ -147,7 +160,31 @@ export default function MainPage() {
       >
         {/* Renderizza i marker per le attrazioni */}
         {attractions.map((attraction) => renderMarker(attraction))}
+        {userLocation && itineraryState && (
+          <MapViewDirections
+            origin={userLocation}
+            waypoints={parsedItinerary.map((attraction: Attraction) => ({
+              latitude: attraction.lat,
+              longitude: attraction.lon,
+            }))}
+            destination={{
+              latitude: parsedItinerary[parsedItinerary.length - 1].lat,
+              longitude: parsedItinerary[parsedItinerary.length - 1].lon,
+            }}
+            apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
+            strokeWidth={2}
+            strokeColor="#0039e6"
+            mode="WALKING"
+            lineDashPattern={[3]}
+          />
+        )}
       </MapView>
+      {/* Back Button */}
+      {itineraryState && (
+        <TouchableOpacity style={styles.backButton} onPress={() => handleBackButton()}>
+          <Text style={styles.backButtonText}>←</Text>
+        </TouchableOpacity>
+      )}
 
       {/* Modal */}
       <Modal
@@ -240,6 +277,31 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+
+  backButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    backgroundColor: "black",
+    borderRadius: 30,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  backButtonText: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
   },
   buttonContainer: {
     position: "absolute",
