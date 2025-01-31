@@ -13,6 +13,7 @@ import MapView, { Marker, Circle } from "react-native-maps"; // Importa i compon
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
+import SimulatedHunt from "@/components/SimulatedHunt";
 
 import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
 import { getAttractions } from "@/dao/attractionsDao";
@@ -41,6 +42,7 @@ export default function MainPage() {
     "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
   };
+  const [isSimulating, setIsSimulating] = useState(false);
 
   useEffect(() => {
     console.log("Receiveeeeeeeeeeeeeeeeeeeeeeeeeeeeeed itinerary:", parsedItinerary);
@@ -53,10 +55,22 @@ export default function MainPage() {
     setAttractions(allAttractions);
   };
 
+  // const handleStartHunt = () => {
+  //   setHuntMode(true);
+  //   setShowStartHuntButton(false);
+  //   setAttractions(allAttractions);
+  // };
+  const [simulatedPosition, setSimulatedPosition] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
+
   const handleStartHunt = () => {
-    setHuntMode(true);
-    setShowStartHuntButton(false);
-    setAttractions(allAttractions);
+    if (itineraryState && itineraryState.length > 0) {
+      setHuntMode(true);
+      setShowStartHuntButton(false);
+      setIsSimulating(true); // Attiva la simulazione
+    }
   };
 
   const handleBackHuntButton = () => {
@@ -160,134 +174,151 @@ export default function MainPage() {
 
   return (
     <View style={styles.container}>
-      {/* Mappa */}
-      <MapView
-        key={attractions.length}
-        style={styles.map}
-        initialRegion={{
-          latitude: 45.0703,
-          longitude: 7.6869,
-          latitudeDelta: 0.05, // Zoom
-          longitudeDelta: 0.05, // Zoom
-        }}
-        showsUserLocation={true}
-      >
-        {/* Renderizza i marker per le attrazioni */}
-        {attractions.map((attraction) => renderMarker(attraction))}
-
-        {userLocation && itineraryState && (
-          <MapViewDirections
-            origin={userLocation}
-            waypoints={parsedItinerary.map((attraction: Attraction) => ({
-              latitude: attraction.lat,
-              longitude: attraction.lon,
-            }))}
-            destination={{
-              latitude: parsedItinerary[parsedItinerary.length - 1].lat,
-              longitude: parsedItinerary[parsedItinerary.length - 1].lon,
+      {isSimulating && itineraryState ? (
+        <SimulatedHunt
+          itinerary={itineraryState}
+          userLocation={userLocation}
+          onExit={() => setIsSimulating(false)}
+        />
+      ) : (
+        <>
+          {/* Mappa */}
+          <MapView
+            key={attractions.length}
+            style={styles.map}
+            initialRegion={{
+              latitude: 45.0703,
+              longitude: 7.6869,
+              latitudeDelta: 0.05, // Zoom
+              longitudeDelta: 0.05, // Zoom
             }}
-            apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
-            strokeWidth={2}
-            strokeColor="#0039e6"
-            mode="WALKING"
-            lineDashPattern={[3]}
-          />
-        )}
-      </MapView>
-      {/* Back Button */}
-      {itineraryState && (
-        <TouchableOpacity style={styles.backButton} onPress={() => handleBackButton()}>
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
-      )}
+            showsUserLocation={true}
+          >
+            {/* Renderizza i marker per le attrazioni */}
+            {attractions.map((attraction) => renderMarker(attraction))}
 
-      {/* Back Button */}
-      {!showStartHuntButton && (
-        <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
-      )}
-
-      {/* Popup */}
-      {huntMode && <PopupStartHunt />}
-
-      {/* Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          {/* attrazione trovata */}
-          {selectedAttraction &&
-            selectedAttraction.isFound === 1 &&
-            selectedAttraction.isGem === 0 && (
-              <View style={styles.modalContent}>
-                <>
-                  <Image
-                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                    style={styles.attractionImage}
-                  />
-                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                  <Text style={styles.attractionDescription}>{selectedAttraction.description}</Text>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
-                  </TouchableOpacity>
-                </>
-              </View>
+            {userLocation && itineraryState && (
+              <MapViewDirections
+                origin={userLocation}
+                waypoints={parsedItinerary.map((attraction: Attraction) => ({
+                  latitude: attraction.lat,
+                  longitude: attraction.lon,
+                }))}
+                destination={{
+                  latitude: parsedItinerary[parsedItinerary.length - 1].lat,
+                  longitude: parsedItinerary[parsedItinerary.length - 1].lon,
+                }}
+                apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
+                strokeWidth={2}
+                strokeColor="#0039e6"
+                mode="WALKING"
+                lineDashPattern={[3]}
+              />
             )}
-          {/* Gemma trovata */}
-          {selectedAttraction &&
-            selectedAttraction.isFound === 1 &&
-            selectedAttraction.isGem === 1 && (
-              <View style={styles.modalContentGemFound}>
-                <ImageBackground
-                  source={require("../../assets/images/gem_background4.png")}
-                  style={styles.modalBackgroundImage}
-                  imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
-                >
-                  <Image
-                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                    style={styles.attractionImage}
-                  />
-                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                  <Text style={styles.attractionDescription}>{selectedAttraction.description}</Text>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
-                  </TouchableOpacity>
-                </ImageBackground>
-              </View>
-            )}
-          {/* attrazione non trovata */}
-          {selectedAttraction && selectedAttraction.isFound === 0 && (
-            <View style={styles.modalContent}>
-              <>
-                <Text style={styles.attractionDescription}>
-                  {"The selected attraction has not been found yet."}
-                </Text>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </>
+          </MapView>
+          {/* Back Button */}
+          {itineraryState && (
+            <TouchableOpacity style={styles.backButton} onPress={() => handleBackButton()}>
+              <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Back Button */}
+          {!showStartHuntButton && (
+            <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
+              <Text style={styles.backButtonText}>←</Text>
+            </TouchableOpacity>
+          )}
+
+          {/* Popup */}
+          {huntMode && <PopupStartHunt />}
+
+          {/* Modal */}
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              {/* attrazione trovata */}
+              {selectedAttraction &&
+                selectedAttraction.isFound === 1 &&
+                selectedAttraction.isGem === 0 && (
+                  <View style={styles.modalContent}>
+                    <>
+                      <Image
+                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                        style={styles.attractionImage}
+                      />
+                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                      <Text style={styles.attractionDescription}>
+                        {selectedAttraction.description}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => setModalVisible(false)}
+                      >
+                        <Text style={styles.closeButtonText}>Close</Text>
+                      </TouchableOpacity>
+                    </>
+                  </View>
+                )}
+              {/* Gemma trovata */}
+              {selectedAttraction &&
+                selectedAttraction.isFound === 1 &&
+                selectedAttraction.isGem === 1 && (
+                  <View style={styles.modalContentGemFound}>
+                    <ImageBackground
+                      source={require("../../assets/images/gem_background4.png")}
+                      style={styles.modalBackgroundImage}
+                      imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
+                    >
+                      <Image
+                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                        style={styles.attractionImage}
+                      />
+                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                      <Text style={styles.attractionDescription}>
+                        {selectedAttraction.description}
+                      </Text>
+                      <TouchableOpacity
+                        style={styles.closeButton}
+                        onPress={() => setModalVisible(false)}
+                      >
+                        <Text style={styles.closeButtonText}>Close</Text>
+                      </TouchableOpacity>
+                    </ImageBackground>
+                  </View>
+                )}
+              {/* attrazione non trovata */}
+              {selectedAttraction && selectedAttraction.isFound === 0 && (
+                <View style={styles.modalContent}>
+                  <>
+                    <Text style={styles.attractionDescription}>
+                      {"The selected attraction has not been found yet."}
+                    </Text>
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={() => setModalVisible(false)}
+                    >
+                      <Text style={styles.closeButtonText}>Close</Text>
+                    </TouchableOpacity>
+                  </>
+                </View>
+              )}
+            </View>
+          </Modal>
+
+          {/* Bottone Start Hunt */}
+          {showStartHuntButton && (
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity onPress={handleStartHunt}>
+                <Text style={styles.buttonText}>Start Hunt</Text>
+              </TouchableOpacity>
             </View>
           )}
-        </View>
-      </Modal>
-
-      {/* Bottone Start Hunt */}
-      {showStartHuntButton && (
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={handleStartHunt}>
-            <Text style={styles.buttonText}>Start Hunt</Text>
-          </TouchableOpacity>
-        </View>
+        </>
       )}
     </View>
   );
