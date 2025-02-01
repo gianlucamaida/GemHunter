@@ -65,6 +65,10 @@ export default function MainPage() {
       setHuntMode(true);
       setShowStartHuntButton(false);
       setIsSimulating(true); // Attiva la simulazione
+    } else {
+      setHuntMode(true);
+      setShowStartHuntButton(false);
+      setAttractions(allAttractions);
     }
   };
 
@@ -72,6 +76,14 @@ export default function MainPage() {
     setHuntMode(false);
     setShowStartHuntButton(true);
     setAttractions(attractions.filter((attraction) => attraction.isFound === 1));
+  };
+
+  const handleExitSimulatedHunt = () => {
+    setHuntMode(false);
+    setItineraryState(null);
+    setIsSimulating(false);
+    setShowStartHuntButton(true);
+    setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
   };
 
   useEffect(() => {
@@ -171,7 +183,7 @@ export default function MainPage() {
           attractions={attractions}
           itinerary={itineraryState}
           userLocation={userLocation}
-          onExit={() => setIsSimulating(false)}
+          onExit={handleExitSimulatedHunt}
         />
       ) : (
         <>
