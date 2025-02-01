@@ -51,7 +51,7 @@ export default function MainPage() {
 
   const handleBackButton = () => {
     setItineraryState(null);
-    setAttractions(allAttractions);
+    setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
   };
 
   // const handleStartHunt = () => {
