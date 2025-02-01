@@ -45,7 +45,6 @@ export default function MainPage() {
   const [isSimulating, setIsSimulating] = useState(false);
 
   useEffect(() => {
-    console.log("Receiveeeeeeeeeeeeeeeeeeeeeeeeeeeeeed itinerary:", parsedItinerary);
     setAttractions(parsedItinerary);
     setItineraryState(parsedItinerary);
   }, [itinerary]);
@@ -60,10 +59,6 @@ export default function MainPage() {
   //   setShowStartHuntButton(false);
   //   setAttractions(allAttractions);
   // };
-  const [simulatedPosition, setSimulatedPosition] = useState<{
-    latitude: number;
-    longitude: number;
-  } | null>(null);
 
   const handleStartHunt = () => {
     if (itineraryState && itineraryState.length > 0) {
@@ -83,7 +78,6 @@ export default function MainPage() {
     const loadAttractions = async () => {
       try {
         const results = await getAttractions();
-        // console.log(results);
         setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1)); // Imposta le attrazioni nello state
         setAllAttractions(results);
       } catch (error) {
@@ -106,7 +100,6 @@ export default function MainPage() {
 
       // Ottieni la posizione corrente
       const location = await Location.getCurrentPositionAsync({});
-      console.log("User Location:", location); // Log per verificare la posizione
       setUserLocation({
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
@@ -138,7 +131,6 @@ export default function MainPage() {
 
   // Funzione per rendere il marker per ogni attrazione
   const renderMarker = (attraction: Attraction) => {
-    console.log(attraction);
     if (attraction.isGem === 1 && attraction.isFound === 0) {
       return (
         <Circle
@@ -176,6 +168,7 @@ export default function MainPage() {
     <View style={styles.container}>
       {isSimulating && itineraryState ? (
         <SimulatedHunt
+          attractions={attractions}
           itinerary={itineraryState}
           userLocation={userLocation}
           onExit={() => setIsSimulating(false)}
