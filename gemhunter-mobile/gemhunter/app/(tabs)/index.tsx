@@ -34,6 +34,8 @@ export default function MainPage() {
     "granmadre_icon.jpg": require("../../assets/images/granmadre_icon.jpg"),
     "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
+    "diavolo_icon.jpg": require("../../assets/images/diavolo_icon.jpg"),
+    "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
   };
 
   useEffect(() => {
