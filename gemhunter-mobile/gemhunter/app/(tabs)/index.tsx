@@ -75,7 +75,7 @@ export default function MainPage() {
   const handleBackHuntButton = () => {
     setHuntMode(false);
     setShowStartHuntButton(true);
-    setAttractions(attractions.filter((attraction) => attraction.isFound === 1));
+    setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
   };
 
   const handleExitSimulatedHunt = () => {
