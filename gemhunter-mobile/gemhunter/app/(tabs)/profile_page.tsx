@@ -82,10 +82,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   header: {
-    fontSize: 18,
+    fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 10,
+    marginVertical: 30,
   },
   profileSection: {
     alignItems: "center",

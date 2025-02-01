@@ -36,7 +36,7 @@ const DeckPage = () => {
     const loadAttractions = async () => {
       try {
         const results = await getAttractions();
-        setAttractions(results.concat(results));
+        setAttractions(results);
       } catch (error) {
         console.error("Failed to load attractions:", error);
       }
@@ -204,7 +204,7 @@ const styles = StyleSheet.create({
     height: 110,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 1,
+    borderWidth: 4,
     borderRadius: 100,
     overflow: "hidden",
   },

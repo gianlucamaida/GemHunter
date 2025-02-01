@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 20,
+    marginVertical: 35,
     color: "#333",
   },
   stepsContainer: {
