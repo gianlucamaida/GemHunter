@@ -123,8 +123,8 @@ export default function MainPage() {
     <>
       {!formSubmitted && (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View style={styles.container}>
-            <Text style={styles.title}>Create your itinerary!</Text>
+          <SafeAreaView style={styles.container}>
+            <Text style={styles.title}>Create Itinerary</Text>
 
             {formErrors.length > 0 && (
               <View style={styles.errorContainer}>
@@ -137,45 +137,67 @@ export default function MainPage() {
             )}
 
             {!formSubmitted && (
-              <View style={styles.form}>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Avaiable Time (minutes)"
-                  value={totalTime}
-                  onChangeText={setTotalTime}
-                  keyboardType="numeric"
-                  placeholderTextColor="#666"
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Number of Attractions to see"
-                  value={maxAttractions}
-                  onChangeText={setMaxAttractions}
-                  keyboardType="numeric"
-                  placeholderTextColor="#666"
-                />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Number of Gems to see"
-                  value={maxGems}
-                  onChangeText={setMaxGems}
-                  keyboardType="numeric"
-                  placeholderTextColor="#666"
-                />
-
+              <>
+                <View style={styles.stepsContainer}>
+                  <View>
+                    <Image
+                      source={require("../../assets/images/itinerary.jpg")}
+                      style={styles.stepImage2}
+                    />
+                    <Text style={styles.label2}>
+                      Enter your available time, attractions, and gems to get a customized
+                      itinerary!{" "}
+                    </Text>
+                  </View>
+                  <View style={styles.form}>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Time:</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Avaiable Time (minutes)"
+                        value={totalTime}
+                        onChangeText={setTotalTime}
+                        keyboardType="numeric"
+                        placeholderTextColor="#666"
+                      />
+                    </View>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Attractions:</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Number of Attractions to see"
+                        value={maxAttractions}
+                        onChangeText={setMaxAttractions}
+                        keyboardType="numeric"
+                        placeholderTextColor="#666"
+                      />
+                    </View>
+                    <View style={styles.fieldContainer}>
+                      <Text style={styles.label}>Gems:</Text>
+                      <TextInput
+                        style={styles.input}
+                        placeholder="Number of Gems to see"
+                        value={maxGems}
+                        onChangeText={setMaxGems}
+                        keyboardType="numeric"
+                        placeholderTextColor="#666"
+                      />
+                    </View>
+                  </View>
+                </View>
                 <View style={styles.buttonContainer}>
-                  <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                  <TouchableOpacity onPress={handleSubmit}>
                     <Text style={styles.buttonText}>Create</Text>
                   </TouchableOpacity>
                 </View>
-              </View>
+              </>
             )}
-          </View>
+          </SafeAreaView>
         </TouchableWithoutFeedback>
       )}
 
       {formSubmitted && (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={styles.container2}>
           <Text style={styles.title}>New Itinerary</Text>
 
           {/* summary */}
@@ -219,14 +241,38 @@ export default function MainPage() {
 }
 
 const styles = StyleSheet.create({
+  fieldContainer: {
+    marginTop: 20,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  label2: {
+    height: 40,
+    color: "gray",
+    textAlign: "center",
+    fontSize: 16,
+    marginBottom: 10,
+    marginHorizontal: 40,
+  },
   stepsContainer: {
     flex: 1,
-    marginVertical: 40,
   },
   stepRow: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
+  },
+  stepImage2: {
+    width: 250,
+    height: 150,
+    marginBottom: 20,
+    alignSelf: "center",
+    borderRadius: 10,
   },
   stepImage: {
     width: 100,
@@ -311,7 +357,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  container: {
+  container2: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -319,9 +365,11 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 20,
+    textAlign: "center",
+    marginVertical: 35,
+    color: "#333",
   },
   errorContainer: {
     marginBottom: 20,
@@ -331,40 +379,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   form: {
-    marginTop: 25,
-    marginBottom: 30,
-    width: "80%",
+    marginHorizontal: 30,
   },
   input: {
-    width: "100%",
     height: 40,
     borderColor: "gray",
     borderWidth: 1,
-    marginBottom: 15,
-    paddingLeft: 8,
-    borderRadius: 4,
+    padding: 10,
+    borderRadius: 5,
   },
   inputPlaceholder: {
     color: "#666",
   },
-  buttonContainer: {
-    marginTop: 20,
-    alignItems: "center",
+  container: {
+    flex: 1,
+    backgroundColor: "white",
   },
-  button: {
+  buttonContainer: {
+    position: "absolute",
+    bottom: 100,
+    left: 70,
+    right: 70,
     backgroundColor: "black",
-    padding: 15,
-    paddingLeft: 70,
-    paddingRight: 70,
     borderRadius: 30,
+    elevation: 4, // Per ombre su Android
+    padding: 15,
     justifyContent: "center",
     alignItems: "center",
   },
   buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-    textAlign: "center",
+    color: "white", // Cambia il colore del testo a bianco
+    fontSize: 16, // Puoi anche regolare la dimensione del testo
+    fontWeight: "bold", // Testo in grassetto (opzionale)
   },
   loadingContainer: {
     flex: 1,
