@@ -180,6 +180,8 @@ export default function MainPage() {
     setMaxGems("");
   };
 
+  const [count, setCount] = useState(0);
+
   return (
     <>
       {!formSubmitted && (
@@ -305,9 +307,11 @@ export default function MainPage() {
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               onPress={() => {
+                console.log("itineraryyyyyyyy", itinerary);
+                setCount(count + 1);
                 router.push({
                   pathname: "/(tabs)",
-                  params: { itinerary: JSON.stringify(itinerary) },
+                  params: { itinerary: JSON.stringify(itinerary), count: JSON.stringify(count) },
                 });
                 reset();
               }}

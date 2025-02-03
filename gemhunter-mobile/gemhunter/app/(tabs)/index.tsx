@@ -33,6 +33,7 @@ export default function MainPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [allAttractions, setAllAttractions] = useState<Attraction[]>([]);
   const { itinerary } = useLocalSearchParams();
+  const { count } = useLocalSearchParams();
   const parsedItinerary = typeof itinerary === "string" ? JSON.parse(itinerary) : null;
   const [itineraryState, setItineraryState] = useState<Attraction[] | null>(null);
   const [huntMode, setHuntMode] = useState(false);
@@ -46,12 +47,11 @@ export default function MainPage() {
     "diavolo_icon.jpg": require("../../assets/images/diavolo_icon.jpg"),
     "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
   };
-  const [isSimulating, setIsSimulating] = useState(false);
 
   useEffect(() => {
     setAttractions(parsedItinerary);
     setItineraryState(parsedItinerary);
-  }, [itinerary]);
+  }, [itinerary, count]);
 
   const handleBackButton = () => {
     setItineraryState(null);
@@ -65,15 +65,9 @@ export default function MainPage() {
   // };
 
   const handleStartHunt = () => {
-    if (itineraryState && itineraryState.length > 0) {
-      setHuntMode(true);
-      setShowStartHuntButton(false);
-      setIsSimulating(true); // Attiva la simulazione
-    } else {
-      setHuntMode(true);
-      setShowStartHuntButton(false);
-      setAttractions(allAttractions);
-    }
+    setHuntMode(true);
+    setShowStartHuntButton(false);
+    setAttractions(allAttractions);
   };
 
   const handleBackHuntButton = () => {
@@ -85,7 +79,6 @@ export default function MainPage() {
   const handleExitSimulatedHunt = () => {
     setHuntMode(false);
     setItineraryState(null);
-    setIsSimulating(false);
     setShowStartHuntButton(true);
     setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
   };
@@ -183,7 +176,7 @@ export default function MainPage() {
   return (
     <View style={styles.container}>
       <InfoButton />
-      {isSimulating && itineraryState ? (
+      {itineraryState ? (
         <SimulatedHunt
           attractions={attractions}
           itinerary={itineraryState}
