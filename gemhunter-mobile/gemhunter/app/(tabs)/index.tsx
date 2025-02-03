@@ -19,6 +19,7 @@ import { Attraction } from "@/constants/Attraction"; // Assicurati che Attractio
 import { getAttractions } from "@/dao/attractionsDao";
 import MapViewDirections from "react-native-maps-directions";
 import PopupStartHunt from "@/components/PopupStartHunt";
+import InfoButton from "@/components/InfoButton";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -178,6 +179,7 @@ export default function MainPage() {
 
   return (
     <View style={styles.container}>
+      <InfoButton />
       {isSimulating && itineraryState ? (
         <SimulatedHunt
           attractions={attractions}
