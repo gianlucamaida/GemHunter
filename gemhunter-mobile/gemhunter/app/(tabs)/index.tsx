@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Modal,
   ImageBackground,
-  ScrollView ,
+  ScrollView,
 } from "react-native";
 import MapView, { Marker, Circle } from "react-native-maps"; // Importa i componenti di react-native-maps
 import { useNavigation } from "@react-navigation/native";
@@ -192,96 +192,18 @@ export default function MainPage() {
         />
       ) : (
         <>
-          {/* Mappa */}
           <MapView
             key={attractions.length}
             style={styles.map}
             initialRegion={{
               latitude: 45.0703,
               longitude: 7.6869,
-              latitudeDelta: 0.05, // Zoom
-              longitudeDelta: 0.05, // Zoom
+              latitudeDelta: 0.05,
+              longitudeDelta: 0.05,
             }}
             showsUserLocation={true}
           >
-            {/* Renderizza i marker per le attrazioni */}
             {attractions.map((attraction) => renderMarker(attraction))}
-
-
-      {/* Modal */}
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          {/* attrazione trovata */}
-          {selectedAttraction &&
-            selectedAttraction.isFound === 1 &&
-            selectedAttraction.isGem === 0 && (
-              <View style={styles.modalContent}>
-                <>
-                  <Image
-                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                    style={styles.attractionImage}
-                  />
-                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                  <View style={styles.descriptionContainer}>
-                    <ScrollView style={styles.descriptionScroll}>
-                      <Text style={styles.attractionDescription}>{selectedAttraction.description.replace(/\\'/g, "'")}</Text>
-                    </ScrollView>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
-                  </TouchableOpacity>
-                </>
-              </View>
-            )}
-          {/* Gemma trovata */}
-          {selectedAttraction &&
-            selectedAttraction.isFound === 1 &&
-            selectedAttraction.isGem === 1 && (
-              <View style={styles.modalContentGemFound}>
-                <ImageBackground
-                  source={require("../../assets/images/gem_background4.png")}
-                  style={styles.modalBackgroundImage}
-                  imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
-                >
-                  <Image
-                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                    style={styles.attractionImage}
-                  />
-                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                  <View style={styles.descriptionContainer}>
-                    <ScrollView style={styles.descriptionScroll}>
-                      <Text style={styles.attractionDescription}>{selectedAttraction.description.replace(/\\'/g, "'")}</Text>
-                    </ScrollView>
-                  </View>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
-                  </TouchableOpacity>
-                </ImageBackground>
-              </View>
-            )}
-          {/* attrazione non trovata */}
-          {selectedAttraction && selectedAttraction.isFound === 0 && (
-            <View style={styles.modalContent}>
-              <>
-                <Text style={styles.attractionDescription}>
-                  {"The selected attraction has not been found yet."}
-                </Text>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </>
-            </View>
 
             {userLocation && itineraryState && (
               <MapViewDirections
@@ -302,24 +224,21 @@ export default function MainPage() {
               />
             )}
           </MapView>
-          {/* Back Button */}
+
           {itineraryState && (
             <TouchableOpacity style={styles.backButton} onPress={() => handleBackButton()}>
               <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
           )}
 
-          {/* Back Button */}
           {!showStartHuntButton && (
             <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
               <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
           )}
 
-          {/* Popup */}
           {huntMode && <PopupStartHunt />}
 
-          {/* Modal */}
           <Modal
             animationType="slide"
             transparent={true}
@@ -327,30 +246,31 @@ export default function MainPage() {
             onRequestClose={() => setModalVisible(false)}
           >
             <View style={styles.modalOverlay}>
-              {/* attrazione trovata */}
               {selectedAttraction &&
                 selectedAttraction.isFound === 1 &&
                 selectedAttraction.isGem === 0 && (
                   <View style={styles.modalContent}>
-                    <>
-                      <Image
-                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                        style={styles.attractionImage}
-                      />
-                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                      <Text style={styles.attractionDescription}>
-                        {selectedAttraction.description}
-                      </Text>
-                      <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setModalVisible(false)}
-                      >
-                        <Text style={styles.closeButtonText}>Close</Text>
-                      </TouchableOpacity>
-                    </>
+                    <Image
+                      source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                      style={styles.attractionImage}
+                    />
+                    <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                    <View style={styles.descriptionContainer}>
+                      <ScrollView style={styles.descriptionScroll}>
+                        <Text style={styles.attractionDescription}>
+                          {selectedAttraction.description.replace(/\\'/g, "'")}
+                        </Text>
+                      </ScrollView>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={() => setModalVisible(false)}
+                    >
+                      <Text style={styles.closeButtonText}>Close</Text>
+                    </TouchableOpacity>
                   </View>
                 )}
-              {/* Gemma trovata */}
+
               {selectedAttraction &&
                 selectedAttraction.isFound === 1 &&
                 selectedAttraction.isGem === 1 && (
@@ -358,16 +278,20 @@ export default function MainPage() {
                     <ImageBackground
                       source={require("../../assets/images/gem_background4.png")}
                       style={styles.modalBackgroundImage}
-                      imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
+                      imageStyle={{ borderRadius: 20 }}
                     >
                       <Image
                         source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
                         style={styles.attractionImage}
                       />
                       <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                      <Text style={styles.attractionDescription}>
-                        {selectedAttraction.description}
-                      </Text>
+                      <View style={styles.descriptionContainer}>
+                        <ScrollView style={styles.descriptionScroll}>
+                          <Text style={styles.attractionDescription}>
+                            {selectedAttraction.description.replace(/\\'/g, "'")}
+                          </Text>
+                        </ScrollView>
+                      </View>
                       <TouchableOpacity
                         style={styles.closeButton}
                         onPress={() => setModalVisible(false)}
@@ -377,26 +301,23 @@ export default function MainPage() {
                     </ImageBackground>
                   </View>
                 )}
-              {/* attrazione non trovata */}
+
               {selectedAttraction && selectedAttraction.isFound === 0 && (
                 <View style={styles.modalContent}>
-                  <>
-                    <Text style={styles.attractionDescription}>
-                      {"The selected attraction has not been found yet."}
-                    </Text>
-                    <TouchableOpacity
-                      style={styles.closeButton}
-                      onPress={() => setModalVisible(false)}
-                    >
-                      <Text style={styles.closeButtonText}>Close</Text>
-                    </TouchableOpacity>
-                  </>
+                  <Text style={styles.attractionDescription}>
+                    {"The selected attraction has not been found yet."}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
                 </View>
               )}
             </View>
           </Modal>
 
-          {/* Bottone Start Hunt */}
           {showStartHuntButton && (
             <View style={styles.buttonContainer}>
               <TouchableOpacity onPress={handleStartHunt}>
