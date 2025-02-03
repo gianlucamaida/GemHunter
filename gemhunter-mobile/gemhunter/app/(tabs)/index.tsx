@@ -1,22 +1,19 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Button,
   Image,
   TouchableOpacity,
   Modal,
   ImageBackground,
   ScrollView,
 } from "react-native";
-import MapView, { Marker, Circle } from "react-native-maps"; // Importa i componenti di react-native-maps
-import { useNavigation } from "@react-navigation/native";
+import MapView, { Marker, Circle } from "react-native-maps";
 import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
 import SimulatedHunt from "@/components/SimulatedHunt";
-
-import { Attraction } from "@/constants/Attraction"; // Assicurati che Attraction sia definito correttamente
+import { Attraction } from "@/constants/Attraction";
 import { getAttractions } from "@/dao/attractionsDao";
 import MapViewDirections from "react-native-maps-directions";
 import PopupStartHunt from "@/components/PopupStartHunt";
@@ -29,7 +26,7 @@ export default function MainPage() {
   } | null>(null);
   const [errorMsg, setErrorMsg] = useState<String | null>(null);
   const [attractions, setAttractions] = useState<Attraction[]>([]);
-  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null); // Attrazione selezionata
+  const [selectedAttraction, setSelectedAttraction] = useState<Attraction | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [allAttractions, setAllAttractions] = useState<Attraction[]>([]);
   const { itinerary } = useLocalSearchParams();
@@ -58,12 +55,6 @@ export default function MainPage() {
     setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
   };
 
-  // const handleStartHunt = () => {
-  //   setHuntMode(true);
-  //   setShowStartHuntButton(false);
-  //   setAttractions(allAttractions);
-  // };
-
   const handleStartHunt = () => {
     setHuntMode(true);
     setShowStartHuntButton(false);
@@ -87,7 +78,7 @@ export default function MainPage() {
     const loadAttractions = async () => {
       try {
         const results = await getAttractions();
-        setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1)); // Imposta le attrazioni nello state
+        setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1));
         setAllAttractions(results);
       } catch (error) {
         console.error("Failed to load attractions:", error);
@@ -97,17 +88,13 @@ export default function MainPage() {
     loadAttractions();
   }, []);
 
-  // Funzione per ottenere la posizione
   const getUserLocation = async () => {
     try {
-      // Richiedi permessi per la geolocalizzazione
       const { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
         setErrorMsg("Permission to access location was denied.");
         return;
       }
-
-      // Ottieni la posizione corrente
       const location = await Location.getCurrentPositionAsync({});
       setUserLocation({
         latitude: location.coords.latitude,
@@ -119,13 +106,11 @@ export default function MainPage() {
     }
   };
 
-  // Funzione per aprire il modal
   const openModal = (attraction: Attraction) => {
     setSelectedAttraction(attraction);
     setModalVisible(true);
   };
 
-  // Esegui la funzione al montaggio del componente
   useEffect(() => {
     getUserLocation();
   }, []);
@@ -138,7 +123,6 @@ export default function MainPage() {
     );
   }
 
-  // Funzione per rendere il marker per ogni attrazione
   const renderMarker = (attraction: Attraction) => {
     if (attraction.isGem === 1 && attraction.isFound === 0) {
       return (
@@ -155,7 +139,7 @@ export default function MainPage() {
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
           onPress={() => openModal(attraction)}
           pinColor="black"
         />
@@ -165,7 +149,7 @@ export default function MainPage() {
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
           onPress={() => openModal(attraction)}
           pinColor="green"
         />
@@ -336,7 +320,6 @@ const styles = StyleSheet.create({
   map: {
     flex: 1,
   },
-
   backButton: {
     position: "absolute",
     top: 50,
@@ -368,19 +351,19 @@ const styles = StyleSheet.create({
     right: 70,
     backgroundColor: "black",
     borderRadius: 30,
-    elevation: 4, // Per ombre su Android
+    elevation: 4,
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
   },
   buttonText: {
-    color: "white", // Cambia il colore del testo a bianco
-    fontSize: 16, // Puoi anche regolare la dimensione del testo
-    fontWeight: "bold", // Testo in grassetto (opzionale)
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)", // Sfondo scuro semi-trasparente
+    backgroundColor: "rgba(0,0,0,0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -390,8 +373,8 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     alignItems: "center",
-    elevation: 5, // Ombra per Android
-    shadowColor: "#000", // Ombra per iOS
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -399,14 +382,13 @@ const styles = StyleSheet.create({
   modalContentGemFound: {
     width: "85%",
     borderRadius: 20,
-    overflow: "hidden", // Necessario per far sì che i bordi arrotondati vengano applicati correttamente all'ImageBackground
-    elevation: 5, // Ombra per Android
-    shadowColor: "#000", // Ombra per iOS
+    overflow: "hidden",
+    elevation: 5,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
   },
-
   modalBackgroundImage: {
     alignItems: "center",
     justifyContent: "center",
@@ -428,7 +410,7 @@ const styles = StyleSheet.create({
     width: "80%",
     backgroundColor: "black",
     borderRadius: 30,
-    elevation: 4, // Per ombre su Android
+    elevation: 4,
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
@@ -440,15 +422,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   descriptionContainer: {
-    borderWidth: 2, // Spessore del bordo
-    borderColor: "gray", // Colore del bordo
-    borderRadius: 10, // Arrotondamento degli angoli
-    padding: 10, // Spazio interno tra il testo e il bordo
-    marginBottom: 15, // Distanza dagli altri elementi
-    backgroundColor: "white", // Sfondo per contrastare con il testo
+    borderWidth: 2,
+    borderColor: "gray",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "white",
   },
   descriptionScroll: {
-    maxHeight: 200, // Altezza massima prima che scatti lo scroll
+    maxHeight: 200,
   },
   attractionDescription: {
     fontSize: 16,

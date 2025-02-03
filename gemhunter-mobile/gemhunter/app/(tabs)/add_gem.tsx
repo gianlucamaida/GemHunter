@@ -41,22 +41,18 @@ const AddGem = () => {
   };
 
   const resetModal = () => {
-    setConfirmationVisible(false); // Nasconde il modal di conferma
-
-    // Reset dei dati
+    setConfirmationVisible(false);
     setName("");
     setComment("");
     setPhoto(null);
     setLat(null);
     setLon(null);
 
-    // Ritardo di 300ms prima di chiudere il modal
     setTimeout(() => {
-      setShowModal(false); // Chiude il modal principale dopo il reset
+      setShowModal(false);
     }, 50);
   };
 
-  // Aggiungi questo useEffect per gestire gli eventi della tastiera
   useEffect(() => {
     const keyboardWillShowListener = Keyboard.addListener(
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
@@ -73,7 +69,6 @@ const AddGem = () => {
     };
   }, []);
 
-  // funzione per ottenere la posizione attuale dell'utente
   const getLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
@@ -85,7 +80,6 @@ const AddGem = () => {
     setLon(location.coords.longitude);
   };
 
-  // funzione per scattare una foto
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== "granted") {
@@ -108,7 +102,6 @@ const AddGem = () => {
     Keyboard.dismiss();
   }, []);
 
-  // Funzione per scorrere fino all'input attuale
   const scrollToInput = (ref: React.RefObject<TextInput>) => {
     setTimeout(() => {
       ref.current?.measure((fx, fy, width, height, px, py) => {
@@ -184,13 +177,11 @@ const AddGem = () => {
                   keyboardShouldPersistTaps="handled"
                 >
                   <View style={styles.modalContainer}>
-                    <TouchableOpacity style={styles.closeButton} onPress={resetModal}>
-                      <Text style={styles.closeButtonText}>X</Text>
+                    <TouchableOpacity style={styles.backButton} onPress={resetModal}>
+                      <Text style={styles.backButtonText}>←</Text>
                     </TouchableOpacity>
-
                     <Text style={styles.title}>Add a New Gem</Text>
                     {photo && <Image source={{ uri: photo }} style={styles.capturedImage} />}
-
                     <View style={styles.fieldContainer}>
                       <Text style={styles.label}>Name:</Text>
                       <TextInput
@@ -203,7 +194,6 @@ const AddGem = () => {
                         onFocus={() => scrollToInput(nameInputRef)}
                       />
                     </View>
-
                     <View style={styles.fieldContainer}>
                       <Text style={styles.label}>Description:</Text>
                       <TextInput
@@ -219,7 +209,6 @@ const AddGem = () => {
                     </View>
                     {/* Messaggio di errore */}
                     {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-
                     <View
                       style={[
                         styles.submitButtonContainer,
@@ -240,7 +229,7 @@ const AddGem = () => {
         </View>
         <Modal
           visible={confirmationVisible}
-          transparent={true} // Aggiunto transparent
+          transparent={true}
           animationType="fade"
           statusBarTranslucent
         >
@@ -268,6 +257,32 @@ const AddGem = () => {
 };
 
 const styles = StyleSheet.create({
+  backButton: {
+    zIndex: 1,
+
+    position: "absolute",
+    top: 80,
+    left: 20,
+    backgroundColor: "black",
+    borderRadius: 30,
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  backButtonText: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "bold",
+  },
   errorText: {
     color: "red",
     fontSize: 14,
@@ -278,16 +293,15 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.7)", // Più scuro per distinguere meglio
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 9999, // Valore elevato per sovrapposizione
-    elevation: 10, // Necessario per Android
+    zIndex: 9999,
+    elevation: 10,
   },
-
   confirmationBox: {
     width: 300,
     padding: 20,
@@ -333,16 +347,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 50,
   },
   submitButtonKeyboardClosed: {
-    marginTop: "auto", // Questo spingerà il bottone verso il basso
+    marginTop: "auto",
     marginBottom: 30,
   },
   submitButtonKeyboardOpen: {
-    marginVertical: 20, // Margine più piccolo quando la tastiera è aperta
+    marginVertical: 20,
   },
   modalContainer: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 48,
   },
   modalContent: {
     flexGrow: 1,
@@ -400,23 +414,6 @@ const styles = StyleSheet.create({
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
-  },
-  closeButton: {
-    position: "absolute",
-    top: 85,
-    left: 25,
-    backgroundColor: "black",
-    width: 35,
-    height: 35,
-    borderRadius: 20,
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 1,
-  },
-  closeButtonText: {
-    color: "white",
-    fontSize: 18,
-    fontWeight: "bold",
   },
   buttonText: {
     color: "white",
