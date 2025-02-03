@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "expo-router";
-
 import { useNavigation } from "@react-navigation/native";
 import * as Location from "expo-location";
 import { Attraction } from "@/constants/Attraction";
@@ -17,6 +16,9 @@ import {
   Alert,
   SafeAreaView,
   Image,
+  ScrollView,
+  Platform,
+  KeyboardAvoidingView,
 } from "react-native";
 
 export default function MainPage() {
@@ -35,7 +37,12 @@ export default function MainPage() {
   const [maxGems, setMaxGems] = useState<string>("");
   const [formSubmitted, setFormSubmitted] = useState<boolean>(false);
   const [formErrors, setFormErrors] = useState<string[]>([]);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const timeInputRef = useRef<TextInput>(null);
+  const attrInputRef = useRef<TextInput>(null);
+  const gemInputRef = useRef<TextInput>(null);
   const navigation = useNavigation();
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const [itinerary, setItinerary] = useState<Attraction[]>();
   const router = useRouter();
   const PATH1 = attractions;
@@ -48,6 +55,45 @@ export default function MainPage() {
     "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
   };
+
+  const [errors, setErrors] = useState({
+    time: "",
+    attractions: "",
+    gems: "",
+    general: "",
+  });
+
+  const scrollToInput = (ref: React.RefObject<TextInput>) => {
+    if (!ref.current) return;
+
+    const offset = Platform.OS === "ios" ? 20 : 10;
+
+    ref.current.measureInWindow((x, y, width, height) => {
+      if (scrollViewRef.current) {
+        scrollViewRef.current.scrollTo({
+          y: y - offset,
+          animated: true,
+        });
+      }
+    });
+  };
+
+  // Aggiungi questo useEffect per gestire gli eventi della tastiera
+  useEffect(() => {
+    const keyboardWillShowListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow",
+      () => setKeyboardVisible(true)
+    );
+    const keyboardWillHideListener = Keyboard.addListener(
+      Platform.OS === "ios" ? "keyboardWillHide" : "keyboardDidHide",
+      () => setKeyboardVisible(false)
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const loadAttractions = async () => {
@@ -75,28 +121,37 @@ export default function MainPage() {
   }, []);
 
   const validateForm = (): boolean => {
-    const errors: string[] = [];
-    if (!totalTime || isNaN(Number(totalTime)) || Number(totalTime) <= 0) {
-      errors.push("Please enter a valid total time.");
-    }
-    if (!maxAttractions || isNaN(Number(maxAttractions)) || Number(maxAttractions) < 0) {
-      errors.push("Please enter a valid number of attractions.");
-    }
-    if (!maxGems || isNaN(Number(maxGems)) || Number(maxGems) < 0) {
-      errors.push("Please enter a valid number of gems.");
+    let valid = true; // Variabile normale, non uno stato
+    const newErrors = { time: "", attractions: "", gems: "", general: "" };
+
+    if (
+      !totalTime ||
+      isNaN(Number(totalTime)) ||
+      Number(totalTime) <= 0 ||
+      Number(totalTime) > 480
+    ) {
+      console.log("totalTime", totalTime);
+      newErrors.time = "Please enter a valid total time (1-480 minutes).";
+      valid = false;
     }
 
-    if (errors.length > 0) {
-      Alert.alert("Error", errors.join("\n"));
-      return false;
+    if (
+      !maxAttractions ||
+      isNaN(Number(maxAttractions)) ||
+      Number(maxAttractions) < 0 ||
+      Number(maxAttractions) > 10
+    ) {
+      console.log("maxAttractions", maxAttractions);
+      newErrors.attractions = "Please enter a valid number of attractions (0-10).";
+      valid = false;
     }
 
-    return true;
-  };
-
-  const handleSubmit = () => {
-    const isValid = validateForm();
-    if (isValid) {
+    if (!maxGems || isNaN(Number(maxGems)) || Number(maxGems) < 0 || Number(maxGems) > 10) {
+      console.log("maxGems", maxGems);
+      newErrors.gems = "Please enter a valid number of gems (0-10).";
+      valid = false;
+    }
+    if (valid) {
       if (Number(maxAttractions) === 3 && Number(maxGems) === 2) {
         setItinerary(PATH1);
       } else if (Number(maxAttractions) === 3 && Number(maxGems) === 0) {
@@ -104,8 +159,16 @@ export default function MainPage() {
       } else if (Number(maxAttractions) === 0 && Number(maxGems) === 2) {
         setItinerary(PATH3);
       } else {
-        //error
+        valid = false;
+        Alert.alert("No itinerary found for the selected options.");
       }
+    }
+    setErrors(newErrors); // Aggiorna lo stato con i messaggi di errore
+    return valid;
+  };
+
+  const handleSubmit = () => {
+    if (validateForm()) {
       setFormSubmitted(true);
     }
   };
@@ -115,92 +178,110 @@ export default function MainPage() {
     setTotalTime("");
     setMaxAttractions("");
     setMaxGems("");
-    // setSelectedAttraction(attraction);
-    // setModalVisible(true);
   };
 
   return (
     <>
       {!formSubmitted && (
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <SafeAreaView style={styles.container}>
-            <Text style={styles.title}>Create Itinerary</Text>
+        <View style={styles.container}>
+          <KeyboardAvoidingView
+            style={{ flex: 1 }}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+              <ScrollView
+                ref={scrollViewRef}
+                contentContainerStyle={styles.scrollViewContent}
+                keyboardShouldPersistTaps="handled"
+              >
+                <Text style={styles.title}>Create Itinerary</Text>
 
-            {formErrors.length > 0 && (
-              <View style={styles.errorContainer}>
-                {formErrors.map((error, index) => (
-                  <Text key={index} style={styles.errorText}>
-                    {error}
-                  </Text>
-                ))}
-              </View>
-            )}
-
-            {!formSubmitted && (
-              <>
-                <View style={styles.stepsContainer}>
-                  <View>
-                    <Image
-                      source={require("../../assets/images/itinerary.jpg")}
-                      style={styles.stepImage2}
-                    />
-                    <Text style={styles.label2}>
-                      Enter your available time, attractions, and gems to get a customized
-                      itinerary!{" "}
-                    </Text>
-                  </View>
-                  <View style={styles.form}>
-                    <View style={styles.fieldContainer}>
-                      <Text style={styles.label}>Time:</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Avaiable Time (minutes)"
-                        value={totalTime}
-                        onChangeText={setTotalTime}
-                        keyboardType="numeric"
-                        placeholderTextColor="#666"
-                      />
+                {!formSubmitted && (
+                  <>
+                    <View style={styles.stepsContainer}>
+                      <View>
+                        <Image
+                          source={require("../../assets/images/itinerary.jpg")}
+                          style={styles.stepImage2}
+                        />
+                        <Text style={styles.label2}>
+                          Enter your available time, attractions, and gems to get a customized
+                          itinerary!{" "}
+                        </Text>
+                      </View>
+                      <View style={styles.form}>
+                        <View style={styles.fieldContainer}>
+                          <Text style={styles.label}>Time:</Text>
+                          <TextInput
+                            ref={timeInputRef}
+                            style={styles.input}
+                            placeholder="Available Time (minutes)"
+                            value={totalTime}
+                            onChangeText={setTotalTime}
+                            onFocus={() => scrollToInput(timeInputRef)}
+                            keyboardType="numeric"
+                            placeholderTextColor="#666"
+                          />
+                          {errors.time ? <Text style={styles.errorText}>{errors.time}</Text> : null}
+                        </View>
+                        <View style={styles.fieldContainer}>
+                          <Text style={styles.label}>Attractions:</Text>
+                          <TextInput
+                            ref={attrInputRef}
+                            style={styles.input}
+                            placeholder="Number of Attractions to see"
+                            value={maxAttractions}
+                            onChangeText={setMaxAttractions}
+                            onFocus={() => scrollToInput(attrInputRef)}
+                            keyboardType="numeric"
+                            placeholderTextColor="#666"
+                          />
+                          {errors.attractions ? (
+                            <Text style={styles.errorText}>{errors.attractions}</Text>
+                          ) : null}
+                        </View>
+                        <View style={styles.fieldContainer}>
+                          <Text style={styles.label}>Gems:</Text>
+                          <TextInput
+                            ref={gemInputRef}
+                            style={styles.input}
+                            placeholder="Number of Gems to see"
+                            value={maxGems}
+                            onChangeText={setMaxGems}
+                            onFocus={() => scrollToInput(gemInputRef)}
+                            keyboardType="numeric"
+                            placeholderTextColor="#666"
+                          />
+                          {errors.gems ? <Text style={styles.errorText}>{errors.gems}</Text> : null}
+                        </View>
+                      </View>
                     </View>
-                    <View style={styles.fieldContainer}>
-                      <Text style={styles.label}>Attractions:</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Number of Attractions to see"
-                        value={maxAttractions}
-                        onChangeText={setMaxAttractions}
-                        keyboardType="numeric"
-                        placeholderTextColor="#666"
-                      />
+                    {/* Messaggio di errore */}
+                    {errors.general ? <Text style={styles.errorText}>{errors.general}</Text> : null}
+                    <View
+                      style={[
+                        styles.submitButtonContainer,
+                        keyboardVisible
+                          ? styles.submitButtonKeyboardOpen
+                          : styles.submitButtonKeyboardClosed,
+                      ]}
+                    >
+                      <TouchableOpacity onPress={handleSubmit}>
+                        <Text style={styles.buttonText}>Create</Text>
+                      </TouchableOpacity>
                     </View>
-                    <View style={styles.fieldContainer}>
-                      <Text style={styles.label}>Gems:</Text>
-                      <TextInput
-                        style={styles.input}
-                        placeholder="Number of Gems to see"
-                        value={maxGems}
-                        onChangeText={setMaxGems}
-                        keyboardType="numeric"
-                        placeholderTextColor="#666"
-                      />
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity onPress={handleSubmit}>
-                    <Text style={styles.buttonText}>Create</Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            )}
-          </SafeAreaView>
-        </TouchableWithoutFeedback>
+                  </>
+                )}
+              </ScrollView>
+            </TouchableWithoutFeedback>
+          </KeyboardAvoidingView>
+        </View>
       )}
 
       {formSubmitted && (
         <SafeAreaView style={styles.container2}>
           <Text style={styles.title}>New Itinerary</Text>
 
-          {/* summary */}
           <View style={styles.stepsContainer}>
             {itinerary?.map((attraction, index) => (
               <View key={index} style={styles.stepRow}>
@@ -221,7 +302,7 @@ export default function MainPage() {
             ))}
           </View>
 
-          <View style={styles.buttonContainer2}>
+          <View style={styles.buttonContainer}>
             <TouchableOpacity
               onPress={() => {
                 router.push({
@@ -241,6 +322,17 @@ export default function MainPage() {
 }
 
 const styles = StyleSheet.create({
+  submitButtonKeyboardClosed: {
+    marginTop: "auto", // Questo spingerà il bottone verso il basso
+    marginVertical: 100, // Margine più grande quando la tastiera è chiusa
+  },
+  submitButtonKeyboardOpen: {
+    marginVertical: 20, // Margine più piccolo quando la tastiera è aperta
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    backgroundColor: "white",
+  },
   fieldContainer: {
     marginTop: 20,
     marginLeft: 10,
@@ -340,7 +432,7 @@ const styles = StyleSheet.create({
     color: "#666",
     marginTop: 4,
   },
-  buttonContainer2: {
+  buttonContainer: {
     position: "absolute",
     bottom: 100,
     left: 70,
@@ -365,18 +457,18 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   title: {
+    marginTop: 80,
     fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
     marginVertical: 35,
     color: "#333",
   },
-  errorContainer: {
-    marginBottom: 20,
-  },
   errorText: {
     color: "red",
-    fontSize: 14,
+    fontSize: 12,
+    marginTop: 5,
+    textAlign: "center",
   },
   form: {
     marginHorizontal: 30,
@@ -395,17 +487,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
-  buttonContainer: {
-    position: "absolute",
-    bottom: 100,
-    left: 70,
-    right: 70,
+  submitButtonContainer: {
     backgroundColor: "black",
     borderRadius: 30,
-    elevation: 4, // Per ombre su Android
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
+    marginHorizontal: 50,
   },
   buttonText: {
     color: "white", // Cambia il colore del testo a bianco
@@ -428,17 +516,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  modalContent: {
-    width: "85%",
-    backgroundColor: "white",
-    borderRadius: 20,
-    padding: 20,
-    alignItems: "center",
-    elevation: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+  modalContent2: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 50,
   },
   modalContentGemFound: {
     width: "85%",

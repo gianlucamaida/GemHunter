@@ -29,7 +29,6 @@ const AddGem = () => {
   const commentInputRef = useRef<TextInput>(null);
   const [confirmationVisible, setConfirmationVisible] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleSubmission = () => {
@@ -37,11 +36,7 @@ const AddGem = () => {
       setErrorMessage("Both fields are required!");
       return;
     }
-
-    // Reset del messaggio di errore
     setErrorMessage(null);
-
-    // Mostra il modal di conferma
     setConfirmationVisible(true);
   };
 
@@ -346,12 +341,12 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "white",
     paddingHorizontal: 20,
     paddingTop: 50,
   },
   modalContent: {
     flexGrow: 1,
+    backgroundColor: "white",
   },
   container: {
     flex: 1,
