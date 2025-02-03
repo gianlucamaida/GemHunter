@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Modal,
   ImageBackground,
+  ScrollView ,
 } from "react-native";
 import MapView, { Marker, Circle } from "react-native-maps"; // Importa i componenti di react-native-maps
 import { useNavigation } from "@react-navigation/native";
@@ -42,6 +43,8 @@ export default function MainPage() {
     "granmadre_icon.jpg": require("../../assets/images/granmadre_icon.jpg"),
     "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
+    "diavolo_icon.jpg": require("../../assets/images/diavolo_icon.jpg"),
+    "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
   };
   const [isSimulating, setIsSimulating] = useState(false);
 
@@ -203,6 +206,82 @@ export default function MainPage() {
           >
             {/* Renderizza i marker per le attrazioni */}
             {attractions.map((attraction) => renderMarker(attraction))}
+
+
+      {/* Modal */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          {/* attrazione trovata */}
+          {selectedAttraction &&
+            selectedAttraction.isFound === 1 &&
+            selectedAttraction.isGem === 0 && (
+              <View style={styles.modalContent}>
+                <>
+                  <Image
+                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                    style={styles.attractionImage}
+                  />
+                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                  <View style={styles.descriptionContainer}>
+                    <ScrollView style={styles.descriptionScroll}>
+                      <Text style={styles.attractionDescription}>{selectedAttraction.description.replace(/\\'/g, "'")}</Text>
+                    </ScrollView>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </>
+              </View>
+            )}
+          {/* Gemma trovata */}
+          {selectedAttraction &&
+            selectedAttraction.isFound === 1 &&
+            selectedAttraction.isGem === 1 && (
+              <View style={styles.modalContentGemFound}>
+                <ImageBackground
+                  source={require("../../assets/images/gem_background4.png")}
+                  style={styles.modalBackgroundImage}
+                  imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
+                >
+                  <Image
+                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                    style={styles.attractionImage}
+                  />
+                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                  <View style={styles.descriptionContainer}>
+                    <ScrollView style={styles.descriptionScroll}>
+                      <Text style={styles.attractionDescription}>{selectedAttraction.description.replace(/\\'/g, "'")}</Text>
+                    </ScrollView>
+                  </View>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setModalVisible(false)}
+                  >
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </ImageBackground>
+              </View>
+            )}
+          {/* attrazione non trovata */}
+          {selectedAttraction && selectedAttraction.isFound === 0 && (
+            <View style={styles.modalContent}>
+              <>
+                <Text style={styles.attractionDescription}>
+                  {"The selected attraction has not been found yet."}
+                </Text>
+                <TouchableOpacity style={styles.closeButton} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </>
+            </View>
 
             {userLocation && itineraryState && (
               <MapViewDirections
@@ -385,7 +464,6 @@ const styles = StyleSheet.create({
     fontSize: 16, // Puoi anche regolare la dimensione del testo
     fontWeight: "bold", // Testo in grassetto (opzionale)
   },
-
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.5)", // Sfondo scuro semi-trasparente
@@ -432,13 +510,6 @@ const styles = StyleSheet.create({
     color: "black",
     marginBottom: 10,
   },
-  attractionDescription: {
-    fontSize: 16,
-    textAlign: "center",
-    color: "#333",
-    marginBottom: 20,
-    paddingInline: 30,
-  },
   closeButton: {
     width: "80%",
     backgroundColor: "black",
@@ -447,10 +518,28 @@ const styles = StyleSheet.create({
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
+    margin: 5,
   },
   closeButtonText: {
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  descriptionContainer: {
+    borderWidth: 2, // Spessore del bordo
+    borderColor: "gray", // Colore del bordo
+    borderRadius: 10, // Arrotondamento degli angoli
+    padding: 10, // Spazio interno tra il testo e il bordo
+    marginBottom: 15, // Distanza dagli altri elementi
+    backgroundColor: "white", // Sfondo per contrastare con il testo
+  },
+  descriptionScroll: {
+    maxHeight: 200, // Altezza massima prima che scatti lo scroll
+  },
+  attractionDescription: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "black",
+    margin: 5,
   },
 });
