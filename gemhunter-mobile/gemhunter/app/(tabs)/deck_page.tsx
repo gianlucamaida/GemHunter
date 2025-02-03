@@ -36,7 +36,7 @@ const DeckPage = () => {
     const loadAttractions = async () => {
       try {
         const results = await getAttractions();
-        setAttractions(results);
+        setAttractions(results.concat(results).concat(results));
       } catch (error) {
         console.error("Failed to load attractions:", error);
       }
@@ -103,12 +103,29 @@ const DeckPage = () => {
         numColumns={NUM_COLUMNS}
         contentContainerStyle={styles.deckGrid}
       />
-      <TouchableOpacity style={styles.prevButton} onPress={() => handlePrevPage()}>
-        <Text style={styles.backButtonText}> Prev</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.nextButton} onPress={() => handleNextPage()}>
-        <Text style={styles.backButtonText}>Next</Text>
-      </TouchableOpacity>
+      {page > 1 && !(page * ITEMS_PER_PAGE < attractions.length) && (
+        <TouchableOpacity style={styles.prevButtonFull} onPress={handlePrevPage}>
+          <Text style={styles.backButtonText}>Prev</Text>
+        </TouchableOpacity>
+      )}
+
+      {page * ITEMS_PER_PAGE < attractions.length && !(page > 1) && (
+        <TouchableOpacity style={styles.nextButtonFull} onPress={handleNextPage}>
+          <Text style={styles.backButtonText}>Next</Text>
+        </TouchableOpacity>
+      )}
+
+      {page > 1 && page * ITEMS_PER_PAGE < attractions.length && (
+        <>
+          <TouchableOpacity style={styles.prevButton} onPress={handlePrevPage}>
+            <Text style={styles.backButtonText}>Prev</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.nextButton} onPress={handleNextPage}>
+            <Text style={styles.backButtonText}>Next</Text>
+          </TouchableOpacity>
+        </>
+      )}
+
       <Modal
         visible={showModal}
         animationType="slide"
@@ -168,7 +185,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 100,
+    paddingTop: 95,
     backgroundColor: "white",
   },
   modalContentGemFound: {
@@ -234,6 +251,28 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 100,
     right: 80,
+    backgroundColor: "black",
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  prevButtonFull: {
+    width: 250,
+    position: "absolute",
+    bottom: 100,
+
+    backgroundColor: "black",
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  nextButtonFull: {
+    width: 250,
+    position: "absolute",
+    bottom: 100,
+
     backgroundColor: "black",
     borderRadius: 30,
     padding: 15,
