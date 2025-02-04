@@ -14,14 +14,13 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint, // Colore attivo
+        tabBarActiveTintColor: "white",
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
         tabBarStyle: {
-          backgroundColor: "black", // Colore viola desiderato per la barra
-          position: Platform.OS === "ios" ? "absolute" : "relative", // Posizione della barra
-          borderTopWidth: 0, // Rimuove il bordo superiore della tab bar
+          backgroundColor: "#000", // Background forzato su nero
+          position: Platform.OS === "ios" ? "absolute" : "relative",
+          borderTopWidth: 0,
         },
       }}
     >
