@@ -13,6 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import { Attraction } from "@/constants/Attraction";
 import { getAttractions } from "@/dao/attractionsDao";
+import { useLocalSearchParams } from "expo-router";
 
 const ITEMS_PER_PAGE = 6;
 const NUM_COLUMNS = 2;
@@ -23,6 +24,9 @@ const DeckPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [page, setPage] = useState(1);
   const [displayedAttractions, setDisplayedAttractions] = useState<Attraction[]>([]);
+
+  const { attraction } = useLocalSearchParams();
+  const { bool } = useLocalSearchParams();
 
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
@@ -43,6 +47,15 @@ const DeckPage = () => {
     };
     loadAttractions();
   }, []);
+
+  useEffect(() => {
+    if (attraction && bool === "true") {
+      const foundAttraction = attractions.find((a) => a.id === Number(attraction));
+      if (foundAttraction) {
+        foundAttraction.isFound = 1;
+      }
+    }
+  }, [attraction, bool]);
 
   const handleCardClick = (attraction: Attraction) => {
     setSelectedAttraction(attraction);

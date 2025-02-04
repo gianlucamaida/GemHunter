@@ -1,4 +1,5 @@
 import { Attraction } from "@/constants/Attraction";
+import { router } from "expo-router";
 import React, { useEffect, useState, useRef } from "react";
 import {
   View,
@@ -86,6 +87,11 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
       !modal2Showed ? setShowModal2(true) : null;
       setModal2Showed(true);
       console.log("MODAL 2");
+
+      router.setParams({
+        attraction: attractions.at(0)?.id,
+        bool: "true",
+      });
     }
   }, [simulatedPosition]);
 
