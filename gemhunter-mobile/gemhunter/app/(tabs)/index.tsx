@@ -167,7 +167,6 @@ export default function MainPage() {
 
   return (
     <View style={styles.container}>
-      <InfoButton />
       {itineraryState ? (
         <SimulatedHunt
           attractions={attractions}
@@ -177,6 +176,8 @@ export default function MainPage() {
         />
       ) : (
         <>
+          <InfoButton />
+
           {simulation ? (
             <SimulatedHunt2
               attractions={attractions

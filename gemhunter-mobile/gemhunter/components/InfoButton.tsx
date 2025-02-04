@@ -26,9 +26,6 @@ const InfoButton = () => {
               collect all the gems and attractions in the city.
             </Text>
             <Text style={styles.text}>
-              Right now you can see every gem and attraction you have already found.
-            </Text>
-            <Text style={styles.text}>
               Press the <Text style={styles.bold}>Start Hunt</Text> button and go explore the city
               to find new ones!
             </Text>

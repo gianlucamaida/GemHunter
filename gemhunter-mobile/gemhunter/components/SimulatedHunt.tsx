@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 interface ItineraryPoint {
   lat: number;
@@ -85,7 +86,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
         }}
       >
         {attractions.map((attraction) => renderMarker(attraction))}
-
         <MapViewDirections
           origin={userLocation}
           waypoints={itinerary.map((point) => ({
@@ -105,8 +105,11 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
             setRouteCoords(result.coordinates);
           }}
         />
-
-        <Marker coordinate={simulatedPosition} title="User" />
+        <Marker coordinate={simulatedPosition} title="User">
+          <View style={styles.userMarker}>
+            <View style={styles.innerCircle} />
+          </View>
+        </Marker>
       </MapView>
 
       <TouchableOpacity style={styles.startButton} onPress={() => setIsMoving(!isMoving)}>
@@ -121,6 +124,22 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
 };
 
 const styles = StyleSheet.create({
+  userMarker: {
+    width: 25,
+    height: 25,
+    borderRadius: 25,
+    backgroundColor: "rgba(0, 122, 255, 0.3)", // Azzurro trasparente
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "white",
+  },
+  innerCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 15,
+    backgroundColor: "#007AFF", // Azzurro di iOS/Google Maps
+  },
   container: {
     flex: 1,
   },
