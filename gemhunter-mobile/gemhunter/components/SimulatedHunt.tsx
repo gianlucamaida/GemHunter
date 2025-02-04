@@ -30,9 +30,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   const [simulatedPosition, setSimulatedPosition] = useState(userLocation);
   const [routeCoords, setRouteCoords] = useState<{ latitude: number; longitude: number }[]>([]);
   const [isMoving, setIsMoving] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [speed, setSpeed] = useState(1000); // Velocità in millisecondi
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [speed, setSpeed] = useState(1000);
   const [currentIndex, setCurrentIndex] = useState(0);
   const imageMapping = {
     "mole_icon.jpg": require("../assets/images/mole_icon.jpg"),
@@ -53,15 +51,13 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
     return () => clearTimeout(timeout);
   }, [isMoving, currentIndex, routeCoords, speed]);
 
-  // Funzione per rendere il marker per ogni attrazione
   const renderMarker = (attraction: Attraction) => {
     if (attraction.isGem === 0) {
       return (
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-          //onPress={() => openModal(attraction)}
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
           pinColor="black"
         />
       );
@@ -70,18 +66,12 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-          //onPress={() => openModal(attraction)}
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
           pinColor="green"
         />
       );
     }
   };
-
-  // Funzione per aprire il modal
-  //   const openModal = (attraction: Attraction) => {
-  //     // setModalVisible(true);
-  //   };
 
   return (
     <View style={styles.container}>
@@ -94,7 +84,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           longitudeDelta: 0.05,
         }}
       >
-        {/* Renderizza i marker per le attrazioni */}
         {attractions.map((attraction) => renderMarker(attraction))}
 
         <MapViewDirections
@@ -117,7 +106,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           }}
         />
 
-        {/* Marker della posizione simulata */}
         <Marker coordinate={simulatedPosition} title="User" />
       </MapView>
 
