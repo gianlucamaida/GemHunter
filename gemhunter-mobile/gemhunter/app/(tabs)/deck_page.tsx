@@ -9,6 +9,7 @@ import {
   ImageBackground,
   FlatList,
   Dimensions,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { Attraction } from "@/constants/Attraction";
@@ -34,6 +35,8 @@ const DeckPage = () => {
     "granmadre_icon.jpg": require("../../assets/images/granmadre_icon.jpg"),
     "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
+    "diavolo_icon.jpg": require("../../assets/images/diavolo_icon.jpg"),
+    "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
   };
 
   useEffect(() => {
@@ -140,48 +143,85 @@ const DeckPage = () => {
       )}
 
       <Modal
-        visible={showModal}
         animationType="slide"
         transparent={true}
+        visible={showModal}
         onRequestClose={closeModal}
       >
-        <View style={styles.modalContainer}>
-          {/* {Attrazione} */}
-          {selectedAttraction?.isGem === 0 && (
+        <View style={styles.modalOverlay}>
+          {selectedAttraction &&
+            selectedAttraction.isFound === 1 &&
+            selectedAttraction.isGem === 0 && (
+              <View style={styles.modalContent}>
+                <Image
+                  source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                  style={styles.attractionImage}
+                />
+                <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                <View style={styles.descriptionContainer}>
+                  <ScrollView style={styles.descriptionScroll}>
+                    <Text style={styles.attractionDescription}>
+                      {selectedAttraction.description.replace(/\\'/g, "'")}
+                    </Text>
+                  </ScrollView>
+                </View>
+                <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+
+          {selectedAttraction &&
+            selectedAttraction.isFound === 1 &&
+            selectedAttraction.isGem === 1 && (
+              <View style={styles.modalContentGemFound}>
+                <ImageBackground
+                  source={require("../../assets/images/gem_background4.png")}
+                  style={styles.modalBackgroundImage}
+                  imageStyle={{ borderRadius: 20 }}
+                >
+                  <Image
+                    source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
+                    style={styles.attractionImage}
+                  />
+                  <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                  <View style={styles.descriptionContainer}>
+                    <ScrollView style={styles.descriptionScroll}>
+                      <Text style={styles.attractionDescription}>
+                        {selectedAttraction.description.replace(/\\'/g, "'")}
+                      </Text>
+                    </ScrollView>
+                  </View>
+                  <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                    <Text style={styles.closeButtonText}>Close</Text>
+                  </TouchableOpacity>
+                </ImageBackground>
+              </View>
+            )}
+
+          {selectedAttraction && selectedAttraction.isFound === 0 && (
             <View style={styles.modalContent}>
-              <>
+              <View style={styles.imageContainer}>
                 <Image
                   source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                  style={styles.modalImage}
+                  style={styles.attractionImage}
                 />
-                <Text style={styles.modalTitle}>{selectedAttraction.name}</Text>
-                <Text style={styles.modalDescription}>{selectedAttraction.description}</Text>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </>
-            </View>
-          )}
+                <View style={styles.overlay}>
+                  <Text style={styles.questionMarks}>???</Text>
+                </View>
+              </View>
 
-          {/* {Gem} */}
+              <Text style={styles.attractionTitle}>???</Text>
 
-          {selectedAttraction?.isGem === 1 && (
-            <View style={styles.modalContentGemFound}>
-              <ImageBackground
-                source={require("../../assets/images/gem_background4.png")}
-                style={styles.modalBackgroundImage}
-                imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
-              >
-                <Image
-                  source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                  style={styles.modalImage}
-                />
-                <Text style={styles.modalTitle}>{selectedAttraction.name}</Text>
-                <Text style={styles.modalDescription}>{selectedAttraction.description}</Text>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal(false)}>
-                  <Text style={styles.closeButtonText}>Close</Text>
-                </TouchableOpacity>
-              </ImageBackground>
+              <View style={styles.descriptionContainer}>
+                <Text style={styles.attractionDescription}>
+                  {"The selected attraction has not been found yet."}
+                </Text>
+              </View>
+
+              <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -194,12 +234,62 @@ const styles = StyleSheet.create({
   modalImage: { width: "100%", height: 150, borderRadius: 15, marginBottom: 15 },
   modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
   modalDescription: { fontSize: 16, textAlign: "center", marginBottom: 20, paddingInline: 30 },
+  imageContainer: {
+    position: "relative",
+    width: "100%",
+    height: 150,
+  },
+  questionMarks: {
+    color: "white",
+    fontSize: 40,
+    fontWeight: "bold",
+  },
+  questionMark: {
+    fontSize: 50,
+    fontWeight: "bold",
+    color: "white",
+  },
   deckPage: {
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 95,
     backgroundColor: "white",
+  },
+  descriptionContainer: {
+    borderWidth: 2,
+    borderColor: "gray",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "white",
+  },
+  descriptionScroll: {
+    maxHeight: 200,
+  },
+  attractionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "black",
+    margin: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  attractionImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 15,
+    marginBottom: 15,
+  },
+  attractionDescription: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "black",
+    margin: 20,
   },
   modalContentGemFound: {
     width: "85%",
@@ -337,11 +427,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.6)",
     justifyContent: "center",
     alignItems: "center",
-  },
-  questionMark: {
-    fontSize: 50,
-    fontWeight: "bold",
-    color: "white",
   },
 });
 

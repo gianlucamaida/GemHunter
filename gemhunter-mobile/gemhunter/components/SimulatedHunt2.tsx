@@ -9,6 +9,7 @@ import {
   Modal,
   ImageBackground,
   Image,
+  ScrollView,
 } from "react-native";
 import MapView, { Circle, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
@@ -158,26 +159,30 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
       )}
       {showModal2 && (
         <Modal
-          visible={showModal2}
           animationType="slide"
           transparent={true}
+          visible={showModal2}
           onRequestClose={closeModal}
         >
-          <View style={styles.modalContainer}>
+          <View style={styles.modalOverlay}>
             <View style={styles.modalContentGemFound}>
               <ImageBackground
                 source={require("../assets/images/gem_background4.png")}
                 style={styles.modalBackgroundImage}
-                imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
+                imageStyle={{ borderRadius: 20 }}
               >
                 <Image
                   source={imageMapping[attractions.at(0)?.icon as keyof typeof imageMapping]}
-                  style={styles.modalImage}
+                  style={styles.attractionImage}
                 />
-                <Text style={styles.modalTitle}>
-                  {attractions.at(0)?.name ?? "Unknown Attraction"}
-                </Text>
-                <Text style={styles.modalDescription}>{attractions.at(0)?.description}</Text>
+                <Text style={styles.attractionTitle}>{attractions.at(0)?.name}</Text>
+                <View style={styles.descriptionContainer}>
+                  <ScrollView style={styles.descriptionScroll}>
+                    <Text style={styles.attractionDescription}>
+                      {attractions.at(0)?.description.replace(/\\'/g, "'")}
+                    </Text>
+                  </ScrollView>
+                </View>
                 <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal2(false)}>
                   <Text style={styles.closeButtonText}>Close</Text>
                 </TouchableOpacity>
@@ -254,6 +259,41 @@ const styles = StyleSheet.create({
   },
   map: {
     flex: 1,
+  },
+  descriptionContainer: {
+    borderWidth: 2,
+    borderColor: "gray",
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 15,
+    backgroundColor: "white",
+  },
+  descriptionScroll: {
+    maxHeight: 200,
+  },
+  attractionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "black",
+    margin: 20,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  attractionImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 15,
+    marginBottom: 15,
+  },
+  attractionDescription: {
+    fontSize: 16,
+    textAlign: "center",
+    color: "black",
+    margin: 20,
   },
   startButton: {
     position: "absolute",
