@@ -53,11 +53,6 @@ export default function MainPage() {
     setItineraryState(parsedItinerary);
   }, [itinerary, count]);
 
-  const handleBackButton = () => {
-    setItineraryState(null);
-    setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
-  };
-
   const handleStartHunt = () => {
     setHuntMode(true);
     setShowStartHuntButton(false);
@@ -224,12 +219,6 @@ export default function MainPage() {
                 )}
               </MapView>
 
-              {/* {itineraryState && (
-            <TouchableOpacity style={styles.backButton} onPress={() => handleBackButton()}>
-              <Text style={styles.backButtonText}>X</Text>
-            </TouchableOpacity>
-          )} */}
-
               {!showStartHuntButton && (
                 <>
                   <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
@@ -372,7 +361,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: "100%",
     height: "100%",
-    backgroundColor: "rgba(47, 41, 41, 0.92)", // Sfondo nero semi-trasparente
+    backgroundColor: "rgba(24, 21, 21, 0.97)", // Sfondo nero semi-trasparente
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 15,
