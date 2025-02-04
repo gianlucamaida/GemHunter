@@ -33,6 +33,8 @@ export default function MainPage() {
   const { count } = useLocalSearchParams();
   const parsedItinerary = typeof itinerary === "string" ? JSON.parse(itinerary) : null;
   const [itineraryState, setItineraryState] = useState<Attraction[] | null>(null);
+  const [simulation, setSimulation] = useState(false);
+
   const [huntMode, setHuntMode] = useState(false);
   const [showStartHuntButton, setShowStartHuntButton] = useState(true);
   const imageMapping = {
@@ -61,6 +63,10 @@ export default function MainPage() {
     setAttractions(allAttractions);
   };
 
+  const handleStartSimulation = () => {
+    setSimulation(true);
+  };
+
   const handleBackHuntButton = () => {
     setHuntMode(false);
     setShowStartHuntButton(true);
@@ -72,6 +78,7 @@ export default function MainPage() {
     setItineraryState(null);
     setShowStartHuntButton(true);
     setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
+    setSimulation(false);
   };
 
   useEffect(() => {
@@ -169,138 +176,158 @@ export default function MainPage() {
         />
       ) : (
         <>
-          <MapView
-            key={attractions.length}
-            style={styles.map}
-            initialRegion={{
-              latitude: 45.0703,
-              longitude: 7.6869,
-              latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
-            }}
-            showsUserLocation={true}
-          >
-            {attractions.map((attraction) => renderMarker(attraction))}
-
-            {userLocation && itineraryState && (
-              <MapViewDirections
-                origin={userLocation}
-                waypoints={parsedItinerary.map((attraction: Attraction) => ({
-                  latitude: attraction.lat,
-                  longitude: attraction.lon,
-                }))}
-                destination={{
-                  latitude: parsedItinerary[parsedItinerary.length - 1].lat,
-                  longitude: parsedItinerary[parsedItinerary.length - 1].lon,
+          {simulation ? (
+            <SimulatedHunt
+              attractions={attractions}
+              itinerary={attractions.slice(0, 1)}
+              userLocation={userLocation}
+              onExit={handleExitSimulatedHunt}
+            />
+          ) : (
+            <>
+              <MapView
+                key={attractions.length}
+                style={styles.map}
+                initialRegion={{
+                  latitude: 45.0703,
+                  longitude: 7.6869,
+                  latitudeDelta: 0.05,
+                  longitudeDelta: 0.05,
                 }}
-                apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
-                strokeWidth={2}
-                strokeColor="#0039e6"
-                mode="WALKING"
-                lineDashPattern={[3]}
-              />
-            )}
-          </MapView>
+                showsUserLocation={true}
+              >
+                {attractions.map((attraction) => renderMarker(attraction))}
 
-          {itineraryState && (
+                {userLocation && itineraryState && (
+                  <MapViewDirections
+                    origin={userLocation}
+                    waypoints={parsedItinerary.map((attraction: Attraction) => ({
+                      latitude: attraction.lat,
+                      longitude: attraction.lon,
+                    }))}
+                    destination={{
+                      latitude: parsedItinerary[parsedItinerary.length - 1].lat,
+                      longitude: parsedItinerary[parsedItinerary.length - 1].lon,
+                    }}
+                    apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
+                    strokeWidth={2}
+                    strokeColor="#0039e6"
+                    mode="WALKING"
+                    lineDashPattern={[3]}
+                  />
+                )}
+              </MapView>
+
+              {/* {itineraryState && (
             <TouchableOpacity style={styles.backButton} onPress={() => handleBackButton()}>
-              <Text style={styles.backButtonText}>←</Text>
+              <Text style={styles.backButtonText}>X</Text>
             </TouchableOpacity>
-          )}
+          )} */}
 
-          {!showStartHuntButton && (
-            <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
-              <Text style={styles.backButtonText}>←</Text>
-            </TouchableOpacity>
-          )}
-
-          {huntMode && <PopupStartHunt />}
-
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={modalVisible}
-            onRequestClose={() => setModalVisible(false)}
-          >
-            <View style={styles.modalOverlay}>
-              {selectedAttraction &&
-                selectedAttraction.isFound === 1 &&
-                selectedAttraction.isGem === 0 && (
-                  <View style={styles.modalContent}>
-                    <Image
-                      source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                      style={styles.attractionImage}
-                    />
-                    <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                    <View style={styles.descriptionContainer}>
-                      <ScrollView style={styles.descriptionScroll}>
-                        <Text style={styles.attractionDescription}>
-                          {selectedAttraction.description.replace(/\\'/g, "'")}
-                        </Text>
-                      </ScrollView>
-                    </View>
-                    <TouchableOpacity
-                      style={styles.closeButton}
-                      onPress={() => setModalVisible(false)}
-                    >
-                      <Text style={styles.closeButtonText}>Close</Text>
+              {!showStartHuntButton && (
+                <>
+                  <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
+                    <Text style={styles.backButtonText}>←</Text>
+                  </TouchableOpacity>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={handleStartSimulation}>
+                      <Text style={styles.buttonText}>Start Simulation</Text>
                     </TouchableOpacity>
                   </View>
-                )}
+                </>
+              )}
 
-              {selectedAttraction &&
-                selectedAttraction.isFound === 1 &&
-                selectedAttraction.isGem === 1 && (
-                  <View style={styles.modalContentGemFound}>
-                    <ImageBackground
-                      source={require("../../assets/images/gem_background4.png")}
-                      style={styles.modalBackgroundImage}
-                      imageStyle={{ borderRadius: 20 }}
-                    >
-                      <Image
-                        source={imageMapping[selectedAttraction.icon as keyof typeof imageMapping]}
-                        style={styles.attractionImage}
-                      />
-                      <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
-                      <View style={styles.descriptionContainer}>
-                        <ScrollView style={styles.descriptionScroll}>
-                          <Text style={styles.attractionDescription}>
-                            {selectedAttraction.description.replace(/\\'/g, "'")}
-                          </Text>
-                        </ScrollView>
+              <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+              >
+                <View style={styles.modalOverlay}>
+                  {selectedAttraction &&
+                    selectedAttraction.isFound === 1 &&
+                    selectedAttraction.isGem === 0 && (
+                      <View style={styles.modalContent}>
+                        <Image
+                          source={
+                            imageMapping[selectedAttraction.icon as keyof typeof imageMapping]
+                          }
+                          style={styles.attractionImage}
+                        />
+                        <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                        <View style={styles.descriptionContainer}>
+                          <ScrollView style={styles.descriptionScroll}>
+                            <Text style={styles.attractionDescription}>
+                              {selectedAttraction.description.replace(/\\'/g, "'")}
+                            </Text>
+                          </ScrollView>
+                        </View>
+                        <TouchableOpacity
+                          style={styles.closeButton}
+                          onPress={() => setModalVisible(false)}
+                        >
+                          <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
                       </View>
+                    )}
+
+                  {selectedAttraction &&
+                    selectedAttraction.isFound === 1 &&
+                    selectedAttraction.isGem === 1 && (
+                      <View style={styles.modalContentGemFound}>
+                        <ImageBackground
+                          source={require("../../assets/images/gem_background4.png")}
+                          style={styles.modalBackgroundImage}
+                          imageStyle={{ borderRadius: 20 }}
+                        >
+                          <Image
+                            source={
+                              imageMapping[selectedAttraction.icon as keyof typeof imageMapping]
+                            }
+                            style={styles.attractionImage}
+                          />
+                          <Text style={styles.attractionTitle}>{selectedAttraction.name}</Text>
+                          <View style={styles.descriptionContainer}>
+                            <ScrollView style={styles.descriptionScroll}>
+                              <Text style={styles.attractionDescription}>
+                                {selectedAttraction.description.replace(/\\'/g, "'")}
+                              </Text>
+                            </ScrollView>
+                          </View>
+                          <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setModalVisible(false)}
+                          >
+                            <Text style={styles.closeButtonText}>Close</Text>
+                          </TouchableOpacity>
+                        </ImageBackground>
+                      </View>
+                    )}
+
+                  {selectedAttraction && selectedAttraction.isFound === 0 && (
+                    <View style={styles.modalContent}>
+                      <Text style={styles.attractionDescription}>
+                        {"The selected attraction has not been found yet."}
+                      </Text>
                       <TouchableOpacity
                         style={styles.closeButton}
                         onPress={() => setModalVisible(false)}
                       >
                         <Text style={styles.closeButtonText}>Close</Text>
                       </TouchableOpacity>
-                    </ImageBackground>
-                  </View>
-                )}
+                    </View>
+                  )}
+                </View>
+              </Modal>
 
-              {selectedAttraction && selectedAttraction.isFound === 0 && (
-                <View style={styles.modalContent}>
-                  <Text style={styles.attractionDescription}>
-                    {"The selected attraction has not been found yet."}
-                  </Text>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setModalVisible(false)}
-                  >
-                    <Text style={styles.closeButtonText}>Close</Text>
+              {showStartHuntButton && (
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity onPress={handleStartHunt}>
+                    <Text style={styles.buttonText}>Start Hunt</Text>
                   </TouchableOpacity>
                 </View>
               )}
-            </View>
-          </Modal>
-
-          {showStartHuntButton && (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={handleStartHunt}>
-                <Text style={styles.buttonText}>Start Hunt</Text>
-              </TouchableOpacity>
-            </View>
+            </>
           )}
         </>
       )}
