@@ -312,9 +312,26 @@ export default function MainPage() {
 
                   {selectedAttraction && selectedAttraction.isFound === 0 && (
                     <View style={styles.modalContent}>
-                      <Text style={styles.attractionDescription}>
-                        {"The selected attraction has not been found yet."}
-                      </Text>
+                      <View style={styles.imageContainer}>
+                        <Image
+                          source={
+                            imageMapping[selectedAttraction.icon as keyof typeof imageMapping]
+                          }
+                          style={styles.attractionImage}
+                        />
+                        <View style={styles.overlay}>
+                          <Text style={styles.questionMarks}>???</Text>
+                        </View>
+                      </View>
+
+                      <Text style={styles.attractionTitle}>???</Text>
+
+                      <View style={styles.descriptionContainer}>
+                        <Text style={styles.attractionDescription}>
+                          {"The selected attraction has not been found yet."}
+                        </Text>
+                      </View>
+
                       <TouchableOpacity
                         style={styles.closeButton}
                         onPress={() => setModalVisible(false)}
@@ -342,6 +359,56 @@ export default function MainPage() {
 }
 
 const styles = StyleSheet.create({
+  imageContainer: {
+    position: "relative",
+    width: "100%",
+    height: 150,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100%",
+    height: "100%",
+    backgroundColor: "rgba(47, 41, 41, 0.92)", // Sfondo nero semi-trasparente
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 15,
+  },
+  questionMarks: {
+    color: "white",
+    fontSize: 40,
+    fontWeight: "bold",
+  },
+  questionMark: {
+    fontSize: 50,
+    fontWeight: "bold",
+    color: "white",
+  },
+  imageBlurred: {
+    opacity: 0.3,
+  },
+  stepImage: {
+    width: "100%",
+    height: 150,
+    borderRadius: 15,
+    marginBottom: 15,
+    margin: 20,
+    resizeMode: "contain",
+    overflow: "hidden",
+  },
+  stepImageinside: {
+    width: "100%",
+    height: "100%",
+  },
+  attractionTitle: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: "black",
+    margin: 20,
+  },
   container: {
     flex: 1,
   },
@@ -433,12 +500,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginBottom: 15,
   },
-  attractionTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    color: "black",
-    marginBottom: 10,
-  },
   closeButton: {
     width: "80%",
     backgroundColor: "black",
@@ -469,6 +530,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     color: "black",
-    margin: 5,
+    margin: 20,
   },
 });

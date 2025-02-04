@@ -67,7 +67,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   }, [isMoving, currentIndex, routeCoords, speed]);
 
   useEffect(() => {
-    console.log(simulatedPosition);
     const tolerance = 0.001;
     if (
       Math.abs(simulatedPosition.latitude - (FAKE_COORDS.at(0)?.latitude ?? 0)) <= tolerance &&
@@ -75,7 +74,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
     ) {
       !modal1Showed ? setShowModal1(true) : null;
       setModal1Showed(true);
-      console.log("MODAL 1");
     }
 
     if (
@@ -193,7 +191,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
       >
         {/* Renderizza i marker per le attrazioni */}
         {attractions.map((attraction) => renderMarker(attraction))}
-
         <MapViewDirections
           origin={userLocation}
           waypoints={FAKE_COORDS}
@@ -210,9 +207,12 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
             setRouteCoords(result.coordinates);
           }}
         />
-
         {/* Marker della posizione simulata */}
-        <Marker coordinate={simulatedPosition} title="User" />
+        <Marker coordinate={simulatedPosition} title="User">
+          <View style={styles.userMarker}>
+            <View style={styles.innerCircle} />
+          </View>
+        </Marker>{" "}
       </MapView>
 
       <TouchableOpacity style={styles.startButton} onPress={() => setIsMoving(!isMoving)}>
@@ -227,6 +227,22 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
 };
 
 const styles = StyleSheet.create({
+  userMarker: {
+    width: 25,
+    height: 25,
+    borderRadius: 25,
+    backgroundColor: "rgba(0, 122, 255, 0.3)", // Azzurro trasparente
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 3,
+    borderColor: "white",
+  },
+  innerCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 15,
+    backgroundColor: "#007AFF", // Azzurro di iOS/Google Maps
+  },
   container: {
     flex: 1,
   },

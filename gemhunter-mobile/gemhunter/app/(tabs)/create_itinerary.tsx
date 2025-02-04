@@ -17,6 +17,7 @@ import {
   ScrollView,
   Platform,
   KeyboardAvoidingView,
+  ImageBackground,
 } from "react-native";
 
 export default function MainPage() {
@@ -38,7 +39,7 @@ export default function MainPage() {
   const [count, setCount] = useState(0);
   const router = useRouter();
   //da scegliere in base alla posizione delle attrazioni
-  const PATH1 = attractions;
+  const PATH1 = attractions.slice(0, 5);
   const PATH2 = attractions.slice(0, 3);
   const PATH3 = attractions.slice(3, 5);
   //
@@ -281,14 +282,24 @@ export default function MainPage() {
               {itinerary?.map((attraction, index) => (
                 <View key={index} style={styles.stepRow}>
                   <View style={styles.stepImage}>
-                    <Image
+                    <ImageBackground
                       source={imageMapping[attraction.icon as keyof typeof imageMapping]}
                       style={styles.stepImageinside}
-                    />
+                      imageStyle={attraction.isFound === 0 ? styles.imageBlurred : {}}
+                    >
+                      {attraction.isFound === 0 && (
+                        <View style={styles.overlay}>
+                          <Text style={styles.questionMark}>???</Text>
+                        </View>
+                      )}
+                    </ImageBackground>
                   </View>
                   <View style={styles.stepTextContainer}>
                     <Text style={styles.stepTitle}>Stop {index + 1}</Text>
-                    <Text style={styles.attractionName}>{attraction.name}</Text>
+                    <Text style={styles.attractionName}>
+                      {attraction.isFound === 1 ? attraction.name : "Find me!"}
+                    </Text>
+
                     <Text style={styles.attractionType}>
                       {attraction.isGem === 1 ? "Hidden Gem" : "Attraction"}
                     </Text>
@@ -320,6 +331,24 @@ export default function MainPage() {
 }
 
 const styles = StyleSheet.create({
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  questionMark: {
+    fontSize: 50,
+    fontWeight: "bold",
+    color: "white",
+  },
+  imageBlurred: {
+    opacity: 0.3,
+  },
   backButton: {
     position: "absolute",
     top: 80,
