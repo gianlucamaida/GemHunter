@@ -1,4 +1,5 @@
 import { Attraction } from "@/constants/Attraction";
+import { setFound } from "@/dao/attractionsDao";
 import { router } from "expo-router";
 import React, { useEffect, useState, useRef } from "react";
 import {
@@ -40,8 +41,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   const [simulatedPosition, setSimulatedPosition] = useState(userLocation);
   const [routeCoords, setRouteCoords] = useState<{ latitude: number; longitude: number }[]>([]);
   const [isMoving, setIsMoving] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [speed, setSpeed] = useState(1000); // Velocità in millisecondi
+  const [speed, setSpeed] = useState(500); // Velocità in millisecondi
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showModal1, setShowModal1] = useState(false);
   const [showModal2, setShowModal2] = useState(false);
@@ -89,10 +89,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
       setModal2Showed(true);
       console.log("MODAL 2");
 
-      router.setParams({
-        attraction: attractions.at(0)?.id,
-        bool: "true",
-      });
+      setFound(attractions.at(0)?.id as number);
     }
   }, [simulatedPosition]);
 
