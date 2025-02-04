@@ -1,7 +1,15 @@
 import { Attraction } from "@/constants/Attraction";
 import React, { useEffect, useState, useRef } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Modal,
+  ImageBackground,
+  Image,
+} from "react-native";
+import MapView, { Circle, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 
 interface ItineraryPoint {
@@ -32,9 +40,11 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   const [isMoving, setIsMoving] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [speed, setSpeed] = useState(1000); // Velocità in millisecondi
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showModal, setShowModal] = useState(false);
+  const [showModal1, setShowModal1] = useState(false);
+  const [showModal2, setShowModal2] = useState(false);
+  const [modal1Showed, setModal1Showed] = useState(false);
+  const [modal2Showed, setModal2Showed] = useState(false);
   const imageMapping = {
     "mole_icon.jpg": require("../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../assets/images/madama_icon.jpg"),
@@ -57,23 +67,51 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   }, [isMoving, currentIndex, routeCoords, speed]);
 
   useEffect(() => {
+    console.log(simulatedPosition);
+    const tolerance = 0.001;
     if (
-      simulatedPosition.latitude === FAKE_COORDS.at(0)?.latitude &&
-      simulatedPosition.longitude === FAKE_COORDS.at(0)?.longitude
+      Math.abs(simulatedPosition.latitude - (FAKE_COORDS.at(0)?.latitude ?? 0)) <= tolerance &&
+      Math.abs(simulatedPosition.longitude - (FAKE_COORDS.at(0)?.longitude ?? 0)) <= tolerance
     ) {
-      setShowModal(true);
+      !modal1Showed ? setShowModal1(true) : null;
+      setModal1Showed(true);
+      console.log("MODAL 1");
+    }
+
+    if (
+      Math.abs(simulatedPosition.latitude - (itinerary[itinerary.length - 1].lat ?? 0)) <=
+        tolerance &&
+      Math.abs(simulatedPosition.longitude - (itinerary[itinerary.length - 1].lon ?? 0)) <=
+        tolerance
+    ) {
+      setShowModal1(false);
+      !modal2Showed ? setShowModal2(true) : null;
+      setModal2Showed(true);
+      console.log("MODAL 2");
     }
   }, [simulatedPosition]);
 
-  // Funzione per rendere il marker per ogni attrazione
+  const closeModal = () => {
+    setShowModal1(false);
+  };
+
   const renderMarker = (attraction: Attraction) => {
-    if (attraction.isGem === 0) {
+    if (attraction.isGem === 1 && attraction.isFound === 0) {
+      return (
+        <Circle
+          key={attraction.id}
+          center={{ latitude: attraction.lat, longitude: attraction.lon }}
+          radius={300}
+          strokeColor="darkgreen"
+          fillColor="rgba(0, 128, 0, 0.6)"
+        />
+      );
+    } else if (attraction.isGem === 0) {
       return (
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-          //onPress={() => openModal(attraction)}
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
           pinColor="black"
         />
       );
@@ -82,8 +120,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]} // L'icona personalizzata per il marker
-          //onPress={() => openModal(attraction)}
+          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
           pinColor="green"
         />
       );
@@ -97,10 +134,51 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
 
   return (
     <View style={styles.container}>
-      {showModal && (
-        <Modal>
-          <View>
-            <Text>Modal</Text>
+      {showModal1 && (
+        <Modal
+          visible={showModal1}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modal1Title}>Congratulations! You have found a new gem</Text>
+              <Text style={styles.modalDescription}>Check around and find it yourself!</Text>
+              <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal1(false)}>
+                <Text style={styles.closeButtonText}>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
+      {showModal2 && (
+        <Modal
+          visible={showModal2}
+          animationType="slide"
+          transparent={true}
+          onRequestClose={closeModal}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContentGemFound}>
+              <ImageBackground
+                source={require("../assets/images/gem_background4.png")}
+                style={styles.modalBackgroundImage}
+                imageStyle={{ borderRadius: 20 }} // Per arrotondare i bordi dell'immagine
+              >
+                <Image
+                  source={imageMapping[attractions.at(0)?.icon as keyof typeof imageMapping]}
+                  style={styles.modalImage}
+                />
+                <Text style={styles.modalTitle}>
+                  {attractions.at(0)?.name ?? "Unknown Attraction"}
+                </Text>
+                <Text style={styles.modalDescription}>{attractions.at(0)?.description}</Text>
+                <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal2(false)}>
+                  <Text style={styles.closeButtonText}>Close</Text>
+                </TouchableOpacity>
+              </ImageBackground>
+            </View>
           </View>
         </Modal>
       )}
@@ -125,7 +203,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           }}
           apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
           strokeWidth={2}
-          strokeColor="#0039e6"
+          strokeColor="trasparent"
           mode="WALKING"
           lineDashPattern={[3]}
           onReady={(result) => {
@@ -180,6 +258,56 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     fontWeight: "bold",
+  },
+  modalContentGemFound: {
+    width: "85%",
+    borderRadius: 20,
+    overflow: "hidden", // Necessario per far sì che i bordi arrotondati vengano applicati correttamente all'ImageBackground
+    elevation: 5, // Ombra per Android
+    shadowColor: "#000", // Ombra per iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalContent: {
+    width: "85%",
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    elevation: 5, // Ombra per Android
+    shadowColor: "#000", // Ombra per iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
+  modalBackgroundImage: {
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 20,
+  },
+  modalImage: { width: "100%", height: 150, borderRadius: 15, marginBottom: 15 },
+  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
+  modal1Title: { fontSize: 20, fontWeight: "bold", textAlign: "center", marginBottom: 10 },
+  modalDescription: { fontSize: 16, textAlign: "center", marginBottom: 20, paddingInline: 30 },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  closeButton: {
+    width: "80%",
+    backgroundColor: "black",
+    borderRadius: 30,
+    elevation: 4, // Per ombre su Android
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  closeButtonText: { color: "white", fontSize: 16 },
+  imageBlurred: {
+    opacity: 0.3,
   },
 });
 

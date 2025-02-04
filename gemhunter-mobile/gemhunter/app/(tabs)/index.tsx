@@ -18,6 +18,7 @@ import { getAttractions } from "@/dao/attractionsDao";
 import MapViewDirections from "react-native-maps-directions";
 import PopupStartHunt from "@/components/PopupStartHunt";
 import InfoButton from "@/components/InfoButton";
+import SimulatedHunt2 from "@/components/SimulatedHunt2";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -177,9 +178,13 @@ export default function MainPage() {
       ) : (
         <>
           {simulation ? (
-            <SimulatedHunt
-              attractions={attractions}
-              itinerary={attractions.slice(0, 1)}
+            <SimulatedHunt2
+              attractions={attractions
+                .filter((attraction) => attraction.isFound === 0 && attraction.isGem === 1)
+                .slice(0, 1)}
+              itinerary={attractions
+                .filter((attraction) => attraction.isFound === 0 && attraction.isGem === 1)
+                .slice(0, 1)}
               userLocation={userLocation}
               onExit={handleExitSimulatedHunt}
             />
