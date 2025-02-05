@@ -12,4 +12,15 @@ const getAttractions = async () => {
   }
 };
 
-export { getAttractions };
+const setFound = async (id: number) => {
+  try {
+    const db = await getDatabase();
+    const sql = "UPDATE attractions SET isFound = 1 WHERE id = ?";
+    await db.runAsync(sql, [id]);
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
+};
+
+export { getAttractions, setFound };
