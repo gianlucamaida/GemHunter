@@ -207,18 +207,18 @@ const AddGem = () => {
                     </View>
                     {/* Messaggio di errore */}
                     {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
-                    <View
-                      style={[
-                        styles.submitButtonContainer,
-                        keyboardVisible
-                          ? styles.submitButtonKeyboardOpen
-                          : styles.submitButtonKeyboardClosed,
-                      ]}
-                    >
-                      <TouchableOpacity onPress={handleSubmission}>
+                    <TouchableOpacity onPress={handleSubmission}>
+                      <View
+                        style={[
+                          styles.submitButtonContainer,
+                          keyboardVisible
+                            ? styles.submitButtonKeyboardOpen
+                            : styles.submitButtonKeyboardClosed,
+                        ]}
+                      >
                         <Text style={styles.buttonText}>Submit</Text>
-                      </TouchableOpacity>
-                    </View>
+                      </View>
+                    </TouchableOpacity>
                   </View>
                 </ScrollView>
               </View>
@@ -337,16 +337,19 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   submitButtonContainer: {
+    bottom: 0,
+
     backgroundColor: "black",
     borderRadius: 30,
+    elevation: 4,
     padding: 15,
     justifyContent: "center",
     alignItems: "center",
     marginHorizontal: 50,
   },
   submitButtonKeyboardClosed: {
-    marginTop: "auto",
-    marginBottom: 30,
+    marginTop: 150,
+    marginBottom: 0,
   },
   submitButtonKeyboardOpen: {
     marginVertical: 20,
@@ -363,18 +366,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    paddingHorizontal: 20,
   },
   title: {
     fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 35,
+    marginTop: 35,
     color: "#333",
   },
   stepsContainer: {
     flex: 1,
-    marginVertical: 40,
+    marginTop: 50,
+    marginVertical: 30,
+    marginHorizontal: 20,
   },
   stepRow: {
     flexDirection: "row",
@@ -404,7 +408,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 100,
+    bottom: 66,
     left: 70,
     right: 70,
     backgroundColor: "black",

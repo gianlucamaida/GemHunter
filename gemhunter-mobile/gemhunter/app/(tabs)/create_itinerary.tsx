@@ -252,18 +252,19 @@ export default function MainPage() {
                     </View>
                     {/* Messaggio di errore */}
                     {errors.general ? <Text style={styles.errorText}>{errors.general}</Text> : null}
-                    <View
-                      style={[
-                        styles.submitButtonContainer,
-                        keyboardVisible
-                          ? styles.submitButtonKeyboardOpen
-                          : styles.submitButtonKeyboardClosed,
-                      ]}
-                    >
-                      <TouchableOpacity onPress={handleSubmit}>
+
+                    <TouchableOpacity onPress={handleSubmit}>
+                      <View
+                        style={[
+                          styles.submitButtonContainer,
+                          keyboardVisible
+                            ? styles.submitButtonKeyboardOpen
+                            : styles.submitButtonKeyboardClosed,
+                        ]}
+                      >
                         <Text style={styles.buttonText}>Create</Text>
-                      </TouchableOpacity>
-                    </View>
+                      </View>
+                    </TouchableOpacity>
                   </>
                 )}
               </ScrollView>
@@ -309,21 +310,21 @@ export default function MainPage() {
             </ScrollView>
           </View>
 
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              onPress={() => {
-                console.log("itineraryyyyyyyy", itinerary);
-                setCount(count + 1);
-                router.push({
-                  pathname: "/(tabs)",
-                  params: { itinerary: JSON.stringify(itinerary), count: JSON.stringify(count) },
-                });
-                reset();
-              }}
-            >
+          <TouchableOpacity
+            onPress={() => {
+              console.log("itineraryyyyyyyy", itinerary);
+              setCount(count + 1);
+              router.push({
+                pathname: "/(tabs)",
+                params: { itinerary: JSON.stringify(itinerary), count: JSON.stringify(count) },
+              });
+              reset();
+            }}
+          >
+            <View style={styles.buttonContainer}>
               <Text style={styles.buttonText2}>Start Itinerary</Text>
-            </TouchableOpacity>
-          </View>
+            </View>
+          </TouchableOpacity>
         </SafeAreaView>
       )}
     </>
@@ -469,7 +470,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     position: "absolute",
-    bottom: 100,
+    bottom: 66,
     left: 70,
     right: 70,
     backgroundColor: "black",

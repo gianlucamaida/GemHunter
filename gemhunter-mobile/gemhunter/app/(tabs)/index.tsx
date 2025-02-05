@@ -232,11 +232,11 @@ export default function MainPage() {
                   <TouchableOpacity style={styles.backButton} onPress={handleBackHuntButton}>
                     <Text style={styles.backButtonText}>←</Text>
                   </TouchableOpacity>
-                  <View style={styles.buttonContainer}>
-                    <TouchableOpacity onPress={handleStartSimulation}>
+                  <TouchableOpacity onPress={handleStartSimulation}>
+                    <View style={styles.buttonContainer}>
                       <Text style={styles.buttonText}>Start Simulation</Text>
-                    </TouchableOpacity>
-                  </View>
+                    </View>
+                  </TouchableOpacity>
                 </>
               )}
 
