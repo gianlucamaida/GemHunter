@@ -41,6 +41,8 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
     "testa_icon.jpg": require("../assets/images/testa_icon.jpg"),
   };
 
+  console.log("attractionsssss", attractions);
+  console.log("itineraryyyyy", itinerary);
   useEffect(() => {
     if (!isMoving || currentIndex >= routeCoords.length) return;
 
@@ -101,6 +103,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           strokeWidth={2}
           strokeColor="#0039e6"
           mode="WALKING"
+          optimizeWaypoints={true}
           lineDashPattern={[3]}
           onReady={(result) => {
             setRouteCoords(result.coordinates);

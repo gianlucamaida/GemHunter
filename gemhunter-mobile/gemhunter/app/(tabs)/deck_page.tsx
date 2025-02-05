@@ -25,9 +25,6 @@ const DeckPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [page, setPage] = useState(1);
   const [displayedAttractions, setDisplayedAttractions] = useState<Attraction[]>([]);
-
-  // const { attraction, bool } = useLocalSearchParams();
-
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),

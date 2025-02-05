@@ -89,7 +89,6 @@ export default function MainPage() {
           const results = await getAttractions();
           setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1));
           setAllAttractions(results);
-          console.log("FOCUS");
         }
       } catch (error) {
         console.error("Failed to load attractions:", error);
@@ -171,7 +170,7 @@ export default function MainPage() {
     <View style={styles.container}>
       {itineraryState ? (
         <SimulatedHunt
-          attractions={attractions}
+          attractions={itineraryState}
           itinerary={itineraryState}
           userLocation={userLocation}
           onExit={handleExitSimulatedHunt}
@@ -182,9 +181,7 @@ export default function MainPage() {
 
           {simulation ? (
             <SimulatedHunt2
-              attractions={attractions
-                .filter((attraction) => attraction.isFound === 0 && attraction.isGem === 1)
-                .slice(0, 1)}
+              attractions={attractions}
               itinerary={attractions
                 .filter((attraction) => attraction.isFound === 0 && attraction.isGem === 1)
                 .slice(0, 1)}

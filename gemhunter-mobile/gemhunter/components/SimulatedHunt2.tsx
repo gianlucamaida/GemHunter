@@ -27,7 +27,7 @@ interface UserLocation {
 
 interface SimulatedHuntProps {
   attractions: Attraction[];
-  itinerary: ItineraryPoint[];
+  itinerary: Attraction[];
   userLocation: UserLocation;
   onExit: () => void;
 }
@@ -56,7 +56,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   };
 
   const FAKE_COORDS = [{ latitude: 45.0505366, longitude: 7.6812146 }];
-
   useEffect(() => {
     if (!isMoving || currentIndex >= routeCoords.length) return;
 
@@ -87,14 +86,17 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
       setShowModal1(false);
       !modal2Showed ? setShowModal2(true) : null;
       setModal2Showed(true);
-      console.log("MODAL 2");
-
-      setFound(attractions.at(0)?.id as number);
+      setFound(itinerary[0].id as number);
     }
   }, [simulatedPosition]);
 
   const closeModal = () => {
     setShowModal1(false);
+  };
+
+  const closeSimu = () => {
+    setShowModal2(false);
+    onExit();
   };
 
   const renderMarker = (attraction: Attraction) => {
@@ -128,11 +130,6 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
       );
     }
   };
-
-  // Funzione per aprire il modal
-  //   const openModal = (attraction: Attraction) => {
-  //     // setModalVisible(true);
-  //   };
 
   return (
     <View style={styles.container}>
@@ -170,20 +167,20 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
                 imageStyle={{ borderRadius: 20 }}
               >
                 <Image
-                  source={imageMapping[attractions.at(0)?.icon as keyof typeof imageMapping]}
+                  source={imageMapping[itinerary.at(0)?.icon as keyof typeof imageMapping]}
                   style={styles.attractionImage}
                 />
                 <Text style={styles.attractionTitle}>
-                  {attractions.at(0)?.name ?? "Unknow Attraction"}
+                  {itinerary.at(0)?.name ?? "Unknow Attraction"}
                 </Text>
                 <View style={styles.descriptionContainer}>
                   <ScrollView style={styles.descriptionScroll}>
                     <Text style={styles.attractionDescription}>
-                      {attractions.at(0)?.description.replace(/\\'/g, "'")}
+                      {itinerary.at(0)?.description.replace(/\\'/g, "'")}
                     </Text>
                   </ScrollView>
                 </View>
-                <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal2(false)}>
+                <TouchableOpacity style={styles.closeButton} onPress={closeSimu}>
                   <Text style={styles.closeButtonText}>Close</Text>
                 </TouchableOpacity>
               </ImageBackground>
@@ -304,7 +301,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "green",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 30,
   },
   exitButton: {
     position: "absolute",
@@ -315,7 +312,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 30,
   },
   buttonText: {
     color: "white",

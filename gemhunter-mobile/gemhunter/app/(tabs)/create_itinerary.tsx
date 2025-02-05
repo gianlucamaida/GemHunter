@@ -39,16 +39,24 @@ export default function MainPage() {
   const [count, setCount] = useState(0);
   const router = useRouter();
   //da scegliere in base alla posizione delle attrazioni
-  const PATH1 = attractions.slice(0, 5);
-  const PATH2 = attractions.slice(0, 3);
-  const PATH3 = attractions.slice(3, 5);
-  //
+  const PATH1 = attractions.filter(
+    (attraction) =>
+      attraction.isGem !== 1 ||
+      (attraction.isFound === 1 && attraction.name !== "Panchina degli innamorati")
+  );
+  const PATH2 = attractions.filter((attraction) => attraction.isGem === 0);
+  const PATH3 = attractions.filter(
+    (attraction) => attraction.isGem === 1 && attraction.isFound === 1
+  );
+
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),
     "granmadre_icon.jpg": require("../../assets/images/granmadre_icon.jpg"),
     "innamorati_icon.jpg": require("../../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
+    "diavolo_icon.jpg": require("../../assets/images/diavolo_icon.jpg"),
+    "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
   };
 
   const [errors, setErrors] = useState({
