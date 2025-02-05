@@ -36,6 +36,7 @@ export default function MainPage() {
   const parsedItinerary = typeof itinerary === "string" ? JSON.parse(itinerary) : null;
   const [itineraryState, setItineraryState] = useState<Attraction[] | null>(null);
   const [simulation, setSimulation] = useState(false);
+  const [exitPressed, setExitPressed] = useState(false);
 
   const [huntMode, setHuntMode] = useState(false);
   const [showStartHuntButton, setShowStartHuntButton] = useState(true);
@@ -78,6 +79,7 @@ export default function MainPage() {
     setShowStartHuntButton(true);
     setAttractions(allAttractions.filter((attraction) => attraction.isFound === 1));
     setSimulation(false);
+    setExitPressed(!exitPressed);
   };
 
   useEffect(() => {
@@ -94,7 +96,7 @@ export default function MainPage() {
       }
     };
     loadAttractions();
-  }, [isFocus]);
+  }, [isFocus, exitPressed]);
 
   const getUserLocation = async () => {
     try {
