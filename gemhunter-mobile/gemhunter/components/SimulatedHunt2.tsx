@@ -145,8 +145,9 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modal1Title}>Congratulations! You have found a new gem</Text>
-              <Text style={styles.modalDescription}>Check around and find it yourself!</Text>
+              <Text style={styles.modal1Title}>Hunter, you're in the right spot!</Text>
+              <Text style={styles.modalDescription}>A gem is hidden nearby, go find it!</Text>
+
               <TouchableOpacity style={styles.closeButton} onPress={() => setShowModal1(false)}>
                 <Text style={styles.closeButtonText}>Close</Text>
               </TouchableOpacity>
@@ -172,7 +173,9 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
                   source={imageMapping[attractions.at(0)?.icon as keyof typeof imageMapping]}
                   style={styles.attractionImage}
                 />
-                <Text style={styles.attractionTitle}>{attractions.at(0)?.name}</Text>
+                <Text style={styles.attractionTitle}>
+                  {attractions.at(0)?.name ?? "Unknow Attraction"}
+                </Text>
                 <View style={styles.descriptionContainer}>
                   <ScrollView style={styles.descriptionScroll}>
                     <Text style={styles.attractionDescription}>
@@ -209,7 +212,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           }}
           apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
           strokeWidth={2}
-          strokeColor="trasparent"
+          strokeColor="transparent"
           mode="WALKING"
           lineDashPattern={[3]}
           onReady={(result) => {
@@ -221,7 +224,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           <View style={styles.userMarker}>
             <View style={styles.innerCircle} />
           </View>
-        </Marker>{" "}
+        </Marker>
       </MapView>
 
       <TouchableOpacity style={styles.startButton} onPress={() => setIsMoving(!isMoving)}>
