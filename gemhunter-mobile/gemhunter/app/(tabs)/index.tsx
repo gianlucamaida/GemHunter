@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import MapView, { Marker, Circle } from "react-native-maps";
 import * as Location from "expo-location";
-import { useLocalSearchParams } from "expo-router";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import SimulatedHunt from "@/components/SimulatedHunt";
 import { Attraction } from "@/constants/Attraction";
 import { getAttractions } from "@/dao/attractionsDao";
@@ -19,6 +19,7 @@ import MapViewDirections from "react-native-maps-directions";
 import PopupStartHunt from "@/components/PopupStartHunt";
 import InfoButton from "@/components/InfoButton";
 import SimulatedHunt2 from "@/components/SimulatedHunt2";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -47,6 +48,8 @@ export default function MainPage() {
     "diavolo_icon.jpg": require("../../assets/images/diavolo_icon.jpg"),
     "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
   };
+
+  const isFocus = useIsFocused();
 
   useEffect(() => {
     setAttractions(parsedItinerary);
@@ -80,16 +83,18 @@ export default function MainPage() {
   useEffect(() => {
     const loadAttractions = async () => {
       try {
-        const results = await getAttractions();
-        setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1));
-        setAllAttractions(results);
+        if (isFocus) {
+          const results = await getAttractions();
+          setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1));
+          setAllAttractions(results);
+          console.log("FOCUS");
+        }
       } catch (error) {
         console.error("Failed to load attractions:", error);
       }
     };
-
     loadAttractions();
-  }, []);
+  }, [isFocus]);
 
   const getUserLocation = async () => {
     try {

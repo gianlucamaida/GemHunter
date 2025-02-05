@@ -11,7 +11,7 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { Attraction } from "@/constants/Attraction";
 import { getAttractions } from "@/dao/attractionsDao";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -38,18 +38,22 @@ const DeckPage = () => {
     "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
   };
 
-  useFocusEffect(() => {
+  const isFocus = useIsFocused();
+
+  useEffect(() => {
     const loadAttractions = async () => {
       try {
-        const results = await getAttractions();
-        setAttractions(results);
+        if (isFocus) {
+          const results = await getAttractions();
+          setAttractions(results);
+        }
       } catch (error) {
         console.error("Failed to load attractions:", error);
       }
     };
     loadAttractions();
     console.log("Attractions loaded");
-  });
+  }, [isFocus]);
 
   // useEffect(() => {
   //   console.log(attraction, bool);
