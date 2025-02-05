@@ -201,6 +201,7 @@ export default function MainPage() {
                   longitudeDelta: 0.05,
                 }}
                 showsUserLocation={true}
+                showsCompass={false}
               >
                 {attractions.map((attraction) => renderMarker(attraction))}
 
@@ -338,11 +339,11 @@ export default function MainPage() {
               </Modal>
 
               {showStartHuntButton && (
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity onPress={handleStartHunt}>
+                <TouchableOpacity onPress={handleStartHunt}>
+                  <View style={styles.buttonContainer}>
                     <Text style={styles.buttonText}>Start Hunt</Text>
-                  </TouchableOpacity>
-                </View>
+                  </View>
+                </TouchableOpacity>
               )}
             </>
           )}

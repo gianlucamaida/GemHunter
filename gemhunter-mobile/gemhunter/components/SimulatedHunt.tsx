@@ -84,6 +84,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
+        showsCompass={false}
       >
         {attractions.map((attraction) => renderMarker(attraction))}
         <MapViewDirections

@@ -156,13 +156,11 @@ const AddGem = () => {
           </View>
         </View>
       </View>
-
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity onPress={takePhoto}>
+      <TouchableOpacity onPress={takePhoto}>
+        <View style={styles.buttonContainer}>
           <Text style={styles.buttonText}>Take Photo</Text>
-        </TouchableOpacity>
-      </View>
-
+        </View>
+      </TouchableOpacity>
       <Modal visible={showModal} animationType="slide" onRequestClose={resetModal}>
         <View style={{ flex: 1 }}>
           <KeyboardAvoidingView

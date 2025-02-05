@@ -196,6 +196,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}
+        showsCompass={false}
       >
         {/* Renderizza i marker per le attrazioni */}
         {attractions.map((attraction) => renderMarker(attraction))}
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: "bold",
     color: "black",
-    margin: 20,
+    marginVertical: 20,
   },
   modalOverlay: {
     flex: 1,
@@ -284,7 +285,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: 150,
     borderRadius: 15,
-    marginBottom: 15,
   },
   attractionDescription: {
     fontSize: 16,

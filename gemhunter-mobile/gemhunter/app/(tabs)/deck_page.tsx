@@ -56,6 +56,17 @@ const DeckPage = () => {
   }, [isFocus]);
 
   // useEffect(() => {
+  //   if (attraction && bool === "true") {
+  //     const foundAttraction = attractions.find((a) => a.id === Number(attraction));
+  //     if (foundAttraction) {
+  //       foundAttraction.isFound = 1;
+  //       console.log("gang");
+  //     }
+  //     console.log("gg");
+  //   }
+  // }, [attraction, bool]);
+
+  // useEffect(() => {
   //   console.log(attraction, bool);
   //   if (attraction && bool === "true") {
   //     const foundAttraction = attractions.find((a) => a.id === Number(attraction));
