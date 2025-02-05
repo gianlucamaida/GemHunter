@@ -56,7 +56,9 @@ const DeckPage = () => {
       const foundAttraction = attractions.find((a) => a.id === Number(attraction));
       if (foundAttraction) {
         foundAttraction.isFound = 1;
+        console.log("gang");
       }
+      console.log("gg");
     }
   }, [attraction, bool]);
 
