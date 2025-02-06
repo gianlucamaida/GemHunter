@@ -177,7 +177,7 @@ export default function MainPage() {
         />
       ) : (
         <>
-          <InfoButton />
+          {showStartHuntButton && <InfoButton />}
 
           {simulation ? (
             <SimulatedHunt2
