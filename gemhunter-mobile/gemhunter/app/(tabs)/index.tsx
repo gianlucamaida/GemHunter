@@ -85,7 +85,7 @@ export default function MainPage() {
   useEffect(() => {
     const loadAttractions = async () => {
       try {
-        if (isFocus) {
+        if (isFocus && !huntMode) {
           const results = await getAttractions();
           setAttractions(results.filter((attraction: Attraction) => attraction.isFound === 1));
           setAllAttractions(results);
