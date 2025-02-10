@@ -217,7 +217,7 @@ export default function MainPage() {
                           <TextInput
                             ref={timeInputRef}
                             style={styles.input}
-                            placeholder="Available Time (minutes)"
+                            placeholder="Time Available (minutes)"
                             value={totalTime}
                             onChangeText={setTotalTime}
                             onFocus={() => scrollToInput(timeInputRef)}
@@ -441,7 +441,7 @@ const styles = StyleSheet.create({
   },
   stepImage2: {
     width: 250,
-    height: 150,
+    height: 160,
     marginBottom: 20,
     alignSelf: "center",
     borderRadius: 10,
