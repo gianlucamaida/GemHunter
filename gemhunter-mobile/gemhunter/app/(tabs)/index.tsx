@@ -20,6 +20,7 @@ import PopupStartHunt from "@/components/PopupStartHunt";
 import InfoButton from "@/components/InfoButton";
 import SimulatedHunt2 from "@/components/SimulatedHunt2";
 import { useIsFocused } from "@react-navigation/native";
+import { DEFAULT_ICON_SIZE } from "@expo/vector-icons/build/createIconSet";
 
 export default function MainPage() {
   const [userLocation, setUserLocation] = useState<{
@@ -135,22 +136,27 @@ export default function MainPage() {
   const renderMarker = (attraction: Attraction) => {
     if (attraction.isGem === 1 && attraction.isFound === 0) {
       return (
-        <Circle
-          key={attraction.id}
-          center={{ latitude: attraction.lat, longitude: attraction.lon }}
-          radius={300}
-          strokeColor="darkgreen"
-          fillColor="rgba(0, 128, 0, 0.6)"
-        />
+        <>
+          <Circle
+            key={attraction.id}
+            center={{ latitude: attraction.lat, longitude: attraction.lon }}
+            radius={300}
+            strokeColor="darkgreen"
+            fillColor="rgba(0, 128, 0, 0.6)"
+          />
+          <Marker
+            coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
+            image={require("../../assets/images/gem_center.png")}
+          />
+        </>
       );
     } else if (attraction.isGem === 0) {
       return (
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
+          image={require("../../assets/images/monument.png")}
           onPress={() => openModal(attraction)}
-          pinColor="black"
         />
       );
     } else if (attraction.isGem === 1 && attraction.isFound === 1) {
@@ -158,9 +164,8 @@ export default function MainPage() {
         <Marker
           key={attraction.id}
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
+          image={require("../../assets/images/gem_marker.png")}
           onPress={() => openModal(attraction)}
-          pinColor="green"
         />
       );
     }
