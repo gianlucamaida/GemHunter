@@ -34,23 +34,23 @@ const InfoButton = () => {
 
             <View style={styles.legendItem}>
               <Image
-                source={require("../assets/images/IMG_0535-nobg.png")}
+                source={require("../assets/images/gem_marker.png")}
                 style={styles.legendIcon}
               />
               <Text style={styles.legendText}>Found Gem</Text>
             </View>
 
             <View style={styles.legendItem}>
-              <Image
-                source={require("../assets/images/IMG_0536-nobg.png")}
-                style={styles.legendIcon}
-              />
+              <Image source={require("../assets/images/monument.png")} style={styles.legendIcon} />
               <Text style={styles.legendText}>Main Attraction</Text>
             </View>
 
             <View style={styles.legendItem}>
-              <IconSymbol name="circle.fill" size={35} color="green" />
-              <Text style={styles.legendText2}>Not found Gem</Text>
+              <Image
+                source={require("../assets/images/gem_center.png")}
+                style={styles.legendIcon}
+              />
+              <Text style={styles.legendText}>Not found Gem</Text>
             </View>
 
             <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>

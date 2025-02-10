@@ -102,30 +102,35 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   const renderMarker = (attraction: Attraction) => {
     if (attraction.isGem === 1 && attraction.isFound === 0) {
       return (
-        <Circle
-          key={attraction.id}
-          center={{ latitude: attraction.lat, longitude: attraction.lon }}
-          radius={300}
-          strokeColor="darkgreen"
-          fillColor="rgba(0, 128, 0, 0.6)"
-        />
+        <>
+          <Circle
+            key={`circle-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
+            center={{ latitude: attraction.lat, longitude: attraction.lon }}
+            radius={300}
+            strokeColor="darkgreen"
+            fillColor="rgba(0, 128, 0, 0.6)"
+          />
+          <Marker
+            key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
+            coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
+            image={require("../assets/images/gem_center.png")}
+          />
+        </>
       );
     } else if (attraction.isGem === 0) {
       return (
         <Marker
-          key={attraction.id}
+          key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
-          pinColor="black"
+          image={require("../assets/images/monument.png")}
         />
       );
     } else if (attraction.isGem === 1 && attraction.isFound === 1) {
       return (
         <Marker
-          key={attraction.id}
+          key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
-          pinColor="green"
+          image={require("../assets/images/gem_marker.png")}
         />
       );
     }
@@ -199,7 +204,9 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
         showsCompass={false}
       >
         {/* Renderizza i marker per le attrazioni */}
-        {attractions.map((attraction) => renderMarker(attraction))}
+        {attractions.map((attraction) => (
+          <React.Fragment key={attraction.id}>{renderMarker(attraction)}</React.Fragment>
+        ))}
         <MapViewDirections
           origin={userLocation}
           waypoints={FAKE_COORDS}

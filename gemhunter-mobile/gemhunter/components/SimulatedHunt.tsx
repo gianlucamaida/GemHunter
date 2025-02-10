@@ -1,7 +1,7 @@
 import { Attraction } from "@/constants/Attraction";
 import React, { useEffect, useState, useRef } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import MapView, { Marker } from "react-native-maps";
+import MapView, { Circle, Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import Icon from "react-native-vector-icons/FontAwesome";
 import * as Progress from "react-native-progress";
@@ -124,22 +124,37 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   }, [isMoving, currentIndex, routeCoords, speed]);
 
   const renderMarker = (attraction: Attraction) => {
-    if (attraction.isGem === 0) {
+    if (attraction.isGem === 1 && attraction.isFound === 0) {
+      return (
+        <>
+          <Circle
+            key={`circle-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
+            center={{ latitude: attraction.lat, longitude: attraction.lon }}
+            radius={300}
+            strokeColor="darkgreen"
+            fillColor="rgba(0, 128, 0, 0.6)"
+          />
+          <Marker
+            key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
+            coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
+            image={require("../assets/images/gem_center.png")}
+          />
+        </>
+      );
+    } else if (attraction.isGem === 0) {
       return (
         <Marker
-          key={attraction.id}
+          key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
-          pinColor="black"
+          image={require("../assets/images/monument.png")}
         />
       );
     } else if (attraction.isGem === 1 && attraction.isFound === 1) {
       return (
         <Marker
-          key={attraction.id}
+          key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
-          icon={imageMapping[attraction.icon as keyof typeof imageMapping]}
-          pinColor="green"
+          image={require("../assets/images/gem_marker.png")}
         />
       );
     }
@@ -171,7 +186,9 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
             borderRadius={10}
           />
         </View>
-        {attractions.map((attraction) => renderMarker(attraction))}
+        {attractions.map((attraction) => (
+          <React.Fragment key={attraction.id}>{renderMarker(attraction)}</React.Fragment>
+        ))}
         <MapViewDirections
           origin={userLocation}
           waypoints={itinerary.map((point) => ({
