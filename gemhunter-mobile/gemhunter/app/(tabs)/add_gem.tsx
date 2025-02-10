@@ -526,7 +526,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 35,
+    marginTop: 20,
     color: "#333",
   },
   stepsContainer: {

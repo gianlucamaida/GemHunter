@@ -24,6 +24,7 @@ const DeckPage = () => {
   const [attractions, setAttractions] = useState<Attraction[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [page, setPage] = useState(1);
+  const [foundAttractionsCount, setFoundAttractionsCount] = useState(0);
   const [displayedAttractions, setDisplayedAttractions] = useState<Attraction[]>([]);
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
@@ -43,35 +44,19 @@ const DeckPage = () => {
         if (isFocus) {
           const results = await getAttractions();
           setAttractions(results);
+
+          // Calculate found attractions count
+          const foundCount = results.filter(
+            (attraction: Attraction) => attraction.isFound === 1
+          ).length;
+          setFoundAttractionsCount(foundCount);
         }
       } catch (error) {
         console.error("Failed to load attractions:", error);
       }
     };
     loadAttractions();
-    console.log("Attractions loaded");
   }, [isFocus]);
-
-  // useEffect(() => {
-  //   if (attraction && bool === "true") {
-  //     const foundAttraction = attractions.find((a) => a.id === Number(attraction));
-  //     if (foundAttraction) {
-  //       foundAttraction.isFound = 1;
-  //       console.log("gang");
-  //     }
-  //     console.log("gg");
-  //   }
-  // }, [attraction, bool]);
-
-  // useEffect(() => {
-  //   console.log(attraction, bool);
-  //   if (attraction && bool === "true") {
-  //     const foundAttraction = attractions.find((a) => a.id === Number(attraction));
-  //     if (foundAttraction) {
-  //       foundAttraction.isFound = 1;
-  //     }
-  //   }
-  // }, [attraction, bool]);
 
   const handleCardClick = (attraction: Attraction) => {
     setSelectedAttraction(attraction);
@@ -125,6 +110,9 @@ const DeckPage = () => {
   return (
     <View style={styles.deckPage}>
       <Text style={styles.title}>Hunter's Deck</Text>
+      <Text style={styles.attractionsCounter}>
+        Collected: {foundAttractionsCount}/{attractions.length}
+      </Text>
       <FlatList
         data={displayedAttractions}
         renderItem={renderItem}
@@ -244,6 +232,12 @@ const DeckPage = () => {
 };
 
 const styles = StyleSheet.create({
+  attractionsCounter: {
+    fontSize: 18,
+    fontWeight: "bold",
+    padding: 12,
+    color: "black",
+  },
   modalImage: { width: "100%", height: 150, borderRadius: 15, marginBottom: 15 },
   modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
   modalDescription: { fontSize: 16, textAlign: "center", marginBottom: 20, paddingInline: 30 },
@@ -266,7 +260,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 95,
+    paddingTop: 80,
     backgroundColor: "white",
   },
   descriptionContainer: {
@@ -322,7 +316,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: "bold",
-    marginBottom: 30,
   },
   deckGrid: {
     alignItems: "center",
@@ -330,7 +323,8 @@ const styles = StyleSheet.create({
   },
   deckItem: {
     alignItems: "center",
-    margin: 15,
+    justifyContent: "center",
+    padding: 13,
   },
   deckSlot: {
     width: 110,
@@ -349,6 +343,7 @@ const styles = StyleSheet.create({
     maxWidth: 110,
     marginTop: 10,
     fontSize: 14,
+    textAlign: "center",
     fontWeight: "bold",
   },
   prevButton: {
