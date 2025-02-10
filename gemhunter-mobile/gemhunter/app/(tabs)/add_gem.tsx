@@ -113,6 +113,19 @@ const AddGem = () => {
     }, 50);
   };
 
+  const [tooltipModalVisible, setTooltipModalVisible] = useState(false);
+  const [currentTooltip, setCurrentTooltip] = useState("");
+
+  const tooltips = {
+    name: "Enter the specific name of the hidden gem. Be precise and descriptive.",
+    description:
+      "Provide a detailed explanation of why this location is special. What makes it a hidden gem? Include unique features, atmosphere, or personal experiences.",
+  };
+
+  const showTooltip = (type: keyof typeof tooltips) => {
+    setCurrentTooltip(tooltips[type]);
+    setTooltipModalVisible(true);
+  };
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Add a New Gem</Text>
@@ -180,30 +193,52 @@ const AddGem = () => {
                     </TouchableOpacity>
                     <Text style={styles.title}>Add a New Gem</Text>
                     {photo && <Image source={{ uri: photo }} style={styles.capturedImage} />}
+
                     <View style={styles.fieldContainer}>
-                      <Text style={styles.label}>Name:</Text>
-                      <TextInput
-                        ref={nameInputRef}
-                        style={styles.input}
-                        placeholder="Enter the name of the gem"
-                        placeholderTextColor="gray"
-                        value={name}
-                        onChangeText={setName}
-                        onFocus={() => scrollToInput(nameInputRef)}
-                      />
+                      <View style={styles.labelContainer}>
+                        <Text style={styles.label}>Name:</Text>
+                      </View>
+                      <View style={styles.inputWithTooltipContainer}>
+                        <TextInput
+                          ref={nameInputRef}
+                          style={styles.input}
+                          placeholder="Enter the name of the gem"
+                          placeholderTextColor="gray"
+                          value={name}
+                          onChangeText={setName}
+                          onFocus={() => scrollToInput(nameInputRef)}
+                        />
+                        <TouchableOpacity
+                          style={styles.inlineTooltip}
+                          onPress={() => showTooltip("name")}
+                        >
+                          <Text style={styles.tooltipButtonInside}>?</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
+
                     <View style={styles.fieldContainer}>
-                      <Text style={styles.label}>Description:</Text>
-                      <TextInput
-                        ref={commentInputRef}
-                        style={[styles.input, styles.textarea]}
-                        placeholder="Enter a brief description"
-                        placeholderTextColor="gray"
-                        value={comment}
-                        onChangeText={setComment}
-                        multiline
-                        onFocus={() => scrollToInput(commentInputRef)}
-                      />
+                      <View style={styles.labelContainer}>
+                        <Text style={styles.label}>Description:</Text>
+                      </View>
+                      <View style={styles.inputWithTooltipContainer}>
+                        <TextInput
+                          ref={commentInputRef}
+                          style={[styles.input, styles.textarea]}
+                          placeholder="Enter a brief description"
+                          placeholderTextColor="gray"
+                          value={comment}
+                          onChangeText={setComment}
+                          multiline
+                          onFocus={() => scrollToInput(commentInputRef)}
+                        />
+                        <TouchableOpacity
+                          style={styles.inlineTooltip}
+                          onPress={() => showTooltip("description")}
+                        >
+                          <Text style={styles.tooltipButtonInside}>?</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
                     {/* Messaggio di errore */}
                     {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
@@ -220,6 +255,25 @@ const AddGem = () => {
                       </View>
                     </TouchableOpacity>
                   </View>
+
+                  <Modal
+                    visible={tooltipModalVisible}
+                    transparent={true}
+                    animationType="fade"
+                    onRequestClose={() => setTooltipModalVisible(false)}
+                  >
+                    <View style={styles.tooltipOverlay}>
+                      <View style={styles.tooltipContainer}>
+                        <Text style={styles.tooltipText}>{currentTooltip}</Text>
+                        <TouchableOpacity
+                          style={styles.closeButton}
+                          onPress={() => setTooltipModalVisible(false)}
+                        >
+                          <Text style={styles.closeText}>Close</Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </Modal>
                 </ScrollView>
               </View>
             </TouchableWithoutFeedback>
@@ -255,6 +309,107 @@ const AddGem = () => {
 };
 
 const styles = StyleSheet.create({
+  closeButton: {
+    marginTop: 15,
+    width: "80%",
+    backgroundColor: "black",
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4, // Ombra su Android
+  },
+  closeText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  inputWithTooltipContainer: {
+    position: "relative",
+  },
+  inlineTooltip: {
+    position: "absolute",
+    right: 10,
+    top: "50%",
+    transform: [{ translateY: -10 }],
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "lightgray",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  tooltipButtonInside: {
+    color: "black",
+    fontWeight: "bold",
+  },
+
+  tooltipCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "lightblue",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 5,
+  },
+
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  modalText: {
+    fontSize: 16,
+    marginBottom: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCloseButton: {
+    color: "blue",
+    textAlign: "center",
+    marginTop: 10,
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  tooltipOverlay: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  tooltipContainer: {
+    width: "80%",
+    backgroundColor: "white",
+    borderRadius: 10,
+    padding: 20,
+    alignItems: "center",
+  },
+  tooltipText: {
+    fontSize: 16,
+    textAlign: "center",
+    marginBottom: 15,
+  },
+  tooltipCloseButton: {
+    backgroundColor: "black",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  tooltipCloseText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+
   backButton: {
     zIndex: 1,
 
