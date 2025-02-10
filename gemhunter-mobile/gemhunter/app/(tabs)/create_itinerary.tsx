@@ -18,6 +18,7 @@ import {
   Platform,
   KeyboardAvoidingView,
   ImageBackground,
+  Modal,
 } from "react-native";
 
 export default function MainPage() {
@@ -181,6 +182,20 @@ export default function MainPage() {
     setMaxAttractions("");
     setMaxGems("");
   };
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentTooltip, setCurrentTooltip] = useState("");
+
+  const tooltips = {
+    time: "Enter the total time you have available for your itinerary in minutes. For example, if you have 3 hours, enter 180.",
+    attractions:
+      "Specify the maximum number of attractions you want to visit during your trip. This helps create a focused itinerary.",
+    gems: "Enter the number of gems you'd like to include in your itinerary. These are less touristy locations that offer authentic experiences.",
+  };
+
+  const showTooltip = (type: keyof typeof tooltips) => {
+    setCurrentTooltip(tooltips[type]);
+    setModalVisible(true);
+  };
 
   return (
     <>
@@ -211,52 +226,105 @@ export default function MainPage() {
                           itinerary!{" "}
                         </Text>
                       </View>
+
                       <View style={styles.form}>
                         <View style={styles.fieldContainer}>
-                          <Text style={styles.label}>Time:</Text>
-                          <TextInput
-                            ref={timeInputRef}
-                            style={styles.input}
-                            placeholder="Time Available (minutes)"
-                            value={totalTime}
-                            onChangeText={setTotalTime}
-                            onFocus={() => scrollToInput(timeInputRef)}
-                            keyboardType="numeric"
-                            placeholderTextColor="#666"
-                          />
+                          <View style={styles.labelContainer}>
+                            <Text style={styles.label}>Time:</Text>
+                          </View>
+                          <View style={styles.inputWithTooltipContainer}>
+                            <TextInput
+                              ref={timeInputRef}
+                              style={styles.input}
+                              placeholder="Time Available (minutes)"
+                              value={totalTime}
+                              onChangeText={setTotalTime}
+                              onFocus={() => scrollToInput(timeInputRef)}
+                              keyboardType="numeric"
+                              placeholderTextColor="#666"
+                            />
+                            <TouchableOpacity
+                              style={styles.inlineTooltip}
+                              onPress={() => showTooltip("time")}
+                            >
+                              <Text style={styles.tooltipButtonInside}>?</Text>
+                            </TouchableOpacity>
+                          </View>
                           {errors.time ? <Text style={styles.errorText}>{errors.time}</Text> : null}
                         </View>
+
                         <View style={styles.fieldContainer}>
-                          <Text style={styles.label}>Attractions:</Text>
-                          <TextInput
-                            ref={attrInputRef}
-                            style={styles.input}
-                            placeholder="Number of Attractions to see"
-                            value={maxAttractions}
-                            onChangeText={setMaxAttractions}
-                            onFocus={() => scrollToInput(attrInputRef)}
-                            keyboardType="numeric"
-                            placeholderTextColor="#666"
-                          />
+                          <View style={styles.labelContainer}>
+                            <Text style={styles.label}>Attractions:</Text>
+                          </View>
+                          <View style={styles.inputWithTooltipContainer}>
+                            <TextInput
+                              ref={attrInputRef}
+                              style={styles.input}
+                              placeholder="Number of Attractions to see"
+                              value={maxAttractions}
+                              onChangeText={setMaxAttractions}
+                              onFocus={() => scrollToInput(attrInputRef)}
+                              keyboardType="numeric"
+                              placeholderTextColor="#666"
+                            />
+                            <TouchableOpacity
+                              style={styles.inlineTooltip}
+                              onPress={() => showTooltip("attractions")}
+                            >
+                              <Text style={styles.tooltipButtonInside}>?</Text>
+                            </TouchableOpacity>
+                          </View>
                           {errors.attractions ? (
                             <Text style={styles.errorText}>{errors.attractions}</Text>
                           ) : null}
                         </View>
+
                         <View style={styles.fieldContainer}>
-                          <Text style={styles.label}>Gems:</Text>
-                          <TextInput
-                            ref={gemInputRef}
-                            style={styles.input}
-                            placeholder="Number of Gems to see"
-                            value={maxGems}
-                            onChangeText={setMaxGems}
-                            onFocus={() => scrollToInput(gemInputRef)}
-                            keyboardType="numeric"
-                            placeholderTextColor="#666"
-                          />
+                          <View style={styles.labelContainer}>
+                            <Text style={styles.label}>Gems:</Text>
+                          </View>
+                          <View style={styles.inputWithTooltipContainer}>
+                            <TextInput
+                              ref={gemInputRef}
+                              style={styles.input}
+                              placeholder="Number of Gems to see"
+                              value={maxGems}
+                              onChangeText={setMaxGems}
+                              onFocus={() => scrollToInput(gemInputRef)}
+                              keyboardType="numeric"
+                              placeholderTextColor="#666"
+                            />
+                            <TouchableOpacity
+                              style={styles.inlineTooltip}
+                              onPress={() => showTooltip("gems")}
+                            >
+                              <Text style={styles.tooltipButtonInside}>?</Text>
+                            </TouchableOpacity>
+                          </View>
                           {errors.gems ? <Text style={styles.errorText}>{errors.gems}</Text> : null}
                         </View>
                       </View>
+
+                      <Modal
+                        animationType="slide"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                      >
+                        <View style={styles.modalContainer}>
+                          <View style={styles.modalContent}>
+                            <Text style={styles.modalText}>{currentTooltip}</Text>
+
+                            <TouchableOpacity
+                              onPress={() => setModalVisible(false)}
+                              style={styles.closeButton}
+                            >
+                              <Text style={styles.closeText}>Close</Text>
+                            </TouchableOpacity>
+                          </View>
+                        </View>
+                      </Modal>
                     </View>
                     {/* Messaggio di errore */}
                     {errors.general ? <Text style={styles.errorText}>{errors.general}</Text> : null}
@@ -340,6 +408,80 @@ export default function MainPage() {
 }
 
 const styles = StyleSheet.create({
+  closeButton: {
+    marginTop: 15,
+    width: "80%",
+    backgroundColor: "black",
+    borderRadius: 30,
+    padding: 15,
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 4, // Ombra su Android
+  },
+  closeText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  inputWithTooltipContainer: {
+    position: "relative",
+  },
+  inlineTooltip: {
+    position: "absolute",
+    right: 10,
+    top: "50%",
+    transform: [{ translateY: -10 }],
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "lightgray",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  tooltipButtonInside: {
+    color: "black",
+    fontWeight: "bold",
+  },
+
+  tooltipCircle: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: "lightblue",
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 5,
+  },
+
+  labelContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 20,
+    borderRadius: 10,
+    width: "80%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalText: {
+    fontSize: 16,
+    marginBottom: 15,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalCloseButton: {
+    color: "blue",
+    textAlign: "center",
+    marginTop: 10,
+  },
   overlay: {
     position: "absolute",
     top: 0,
