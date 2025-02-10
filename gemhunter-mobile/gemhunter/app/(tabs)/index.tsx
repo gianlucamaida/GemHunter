@@ -138,13 +138,14 @@ export default function MainPage() {
       return (
         <>
           <Circle
-            key={attraction.id}
+            key={`circle-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
             center={{ latitude: attraction.lat, longitude: attraction.lon }}
             radius={300}
             strokeColor="darkgreen"
             fillColor="rgba(0, 128, 0, 0.6)"
           />
           <Marker
+            key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
             coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
             image={require("../../assets/images/gem_center.png")}
           />
@@ -153,7 +154,7 @@ export default function MainPage() {
     } else if (attraction.isGem === 0) {
       return (
         <Marker
-          key={attraction.id}
+          key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
           image={require("../../assets/images/monument.png")}
           onPress={() => openModal(attraction)}
@@ -162,7 +163,7 @@ export default function MainPage() {
     } else if (attraction.isGem === 1 && attraction.isFound === 1) {
       return (
         <Marker
-          key={attraction.id}
+          key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
           coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
           image={require("../../assets/images/gem_marker.png")}
           onPress={() => openModal(attraction)}
@@ -207,7 +208,9 @@ export default function MainPage() {
                 showsUserLocation={true}
                 showsCompass={false}
               >
-                {attractions.map((attraction) => renderMarker(attraction))}
+                {attractions.map((attraction) => (
+                  <React.Fragment key={attraction.id}>{renderMarker(attraction)}</React.Fragment>
+                ))}
 
                 {userLocation && itineraryState && (
                   <MapViewDirections
