@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import MapViewDirections from "react-native-maps-directions";
 import Icon from "react-native-vector-icons/FontAwesome";
-
+import * as Progress from "react-native-progress";
 interface ItineraryPoint {
   lat: number;
   lon: number;
@@ -31,8 +31,12 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   const [simulatedPosition, setSimulatedPosition] = useState(userLocation);
   const [routeCoords, setRouteCoords] = useState<{ latitude: number; longitude: number }[]>([]);
   const [isMoving, setIsMoving] = useState(false);
-  const [speed, setSpeed] = useState(1000);
+  const [speed, setSpeed] = useState(200);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [completedStops, setCompletedStops] = useState(0);
+  const [visitedPoints, setVisitedPoints] = useState<Set<number>>(new Set());
+  const previousPosition = useRef(userLocation);
+
   const imageMapping = {
     "mole_icon.jpg": require("../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../assets/images/madama_icon.jpg"),
@@ -41,13 +45,78 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
     "testa_icon.jpg": require("../assets/images/testa_icon.jpg"),
   };
 
-  console.log("attractionsssss", attractions);
-  console.log("itineraryyyyy", itinerary);
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371e3;
+    const φ1 = (lat1 * Math.PI) / 180;
+    const φ2 = (lat2 * Math.PI) / 180;
+    const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+    const Δλ = ((lon2 - lon1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+      Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  };
+
+  const isPointBetweenPositions = (
+    point: ItineraryPoint,
+    prevPos: { latitude: number; longitude: number },
+    currentPos: { latitude: number; longitude: number }
+  ) => {
+    // Calcola le distanze
+    const distanceTotal = calculateDistance(
+      prevPos.latitude,
+      prevPos.longitude,
+      currentPos.latitude,
+      currentPos.longitude
+    );
+    const distanceToStart = calculateDistance(
+      point.lat,
+      point.lon,
+      prevPos.latitude,
+      prevPos.longitude
+    );
+    const distanceToEnd = calculateDistance(
+      point.lat,
+      point.lon,
+      currentPos.latitude,
+      currentPos.longitude
+    );
+    // Margine di errore (35 metri)
+    const margin = 50;
+    // Controlla se il punto è vicino al segmento di percorso
+    return (
+      distanceToStart < margin ||
+      distanceToEnd < margin ||
+      distanceToStart + distanceToEnd <= distanceTotal + margin
+    );
+  };
+
   useEffect(() => {
     if (!isMoving || currentIndex >= routeCoords.length) return;
 
     const timeout = setTimeout(() => {
-      setSimulatedPosition(routeCoords[currentIndex]);
+      const newPosition = routeCoords[currentIndex];
+      setSimulatedPosition(newPosition);
+
+      itinerary.forEach((point, index) => {
+        if (!visitedPoints.has(index)) {
+          // Verifica se il punto è tra la posizione precedente e quella attuale
+          if (isPointBetweenPositions(point, previousPosition.current, newPosition)) {
+            setVisitedPoints((prev) => {
+              const newSet = new Set(prev);
+              newSet.add(index);
+              return newSet;
+            });
+            setCompletedStops((prev) => prev + 1);
+            console.log(`Punto ${index} trovato! Coordinate: ${point.lat}, ${point.lon}`);
+          }
+        }
+      });
+
+      previousPosition.current = newPosition;
       setCurrentIndex((prevIndex) => prevIndex + 1);
     }, speed);
 
@@ -88,6 +157,20 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
         }}
         showsCompass={false}
       >
+        <View style={styles.progressContainer}>
+          <Text style={styles.progressText}>
+            Stops Completed: {completedStops} / {itinerary.length}
+          </Text>
+          <Progress.Bar
+            progress={completedStops / itinerary.length}
+            width={160}
+            height={10}
+            color="white"
+            borderWidth={1}
+            borderColor="white"
+            borderRadius={10}
+          />
+        </View>
         {attractions.map((attraction) => renderMarker(attraction))}
         <MapViewDirections
           origin={userLocation}
@@ -128,6 +211,21 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
 };
 
 const styles = StyleSheet.create({
+  progressContainer: {
+    position: "absolute",
+    top: 60,
+    alignSelf: "center",
+    alignItems: "center",
+    backgroundColor: "black",
+    padding: 15,
+    borderRadius: 12,
+  },
+  progressText: {
+    marginBottom: 10,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "white",
+  },
   userMarker: {
     width: 25,
     height: 25,
@@ -159,7 +257,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "green",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 30,
   },
   exitButton: {
     position: "absolute",
@@ -170,7 +268,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 30,
   },
   buttonText: {
     color: "white",
