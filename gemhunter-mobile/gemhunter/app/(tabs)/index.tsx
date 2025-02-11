@@ -148,6 +148,7 @@ export default function MainPage() {
             key={`marker-${attraction.id}`} // <== AGGIUNGI key UNIVOCO
             coordinate={{ latitude: attraction.lat, longitude: attraction.lon }}
             image={require("../../assets/images/gem_center.png")}
+            onPress={() => openModal(attraction)}
           />
         </>
       );
@@ -312,36 +313,74 @@ export default function MainPage() {
                       </View>
                     )}
 
-                  {selectedAttraction && selectedAttraction.isFound === 0 && (
-                    <View style={styles.modalContent}>
-                      <View style={styles.imageContainer}>
-                        <Image
-                          source={
-                            imageMapping[selectedAttraction.icon as keyof typeof imageMapping]
-                          }
-                          style={styles.attractionImage}
-                        />
-                        <View style={styles.overlay}>
-                          <Text style={styles.questionMarks}>???</Text>
+                  {selectedAttraction &&
+                    selectedAttraction.isFound === 0 &&
+                    selectedAttraction.isGem === 0 && (
+                      <View style={styles.modalContent}>
+                        <View style={styles.imageContainer}>
+                          <Image
+                            source={
+                              imageMapping[selectedAttraction.icon as keyof typeof imageMapping]
+                            }
+                            style={styles.attractionImage}
+                          />
+                          <View style={styles.overlay}>
+                            <Text style={styles.questionMarks}>???</Text>
+                          </View>
                         </View>
+
+                        <Text style={styles.attractionTitle}>???</Text>
+
+                        <View style={styles.descriptionContainer}>
+                          <Text style={styles.attractionDescription}>
+                            {"The selected attraction has not been found yet."}
+                          </Text>
+                        </View>
+
+                        <TouchableOpacity
+                          style={styles.closeButton}
+                          onPress={() => setModalVisible(false)}
+                        >
+                          <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
                       </View>
+                    )}
 
-                      <Text style={styles.attractionTitle}>???</Text>
-
-                      <View style={styles.descriptionContainer}>
-                        <Text style={styles.attractionDescription}>
-                          {"The selected attraction has not been found yet."}
-                        </Text>
+                  {selectedAttraction &&
+                    selectedAttraction.isFound === 0 &&
+                    selectedAttraction.isGem === 1 && (
+                      <View style={styles.modalContentGemFound}>
+                        <ImageBackground
+                          source={require("../../assets/images/gem_background4.png")}
+                          style={styles.modalBackgroundImage}
+                          imageStyle={{ borderRadius: 20 }}
+                        >
+                          <View style={styles.imageContainer}>
+                            <Image
+                              source={
+                                imageMapping[selectedAttraction.icon as keyof typeof imageMapping]
+                              }
+                              style={styles.attractionImage}
+                            />
+                            <View style={styles.overlay}>
+                              <Text style={styles.questionMarks}>???</Text>
+                            </View>
+                          </View>
+                          <Text style={styles.attractionTitle}>???</Text>
+                          <View style={styles.descriptionContainer}>
+                            <Text style={styles.attractionDescription}>
+                              {"The selected gem has not been found yet."}
+                            </Text>
+                          </View>
+                          <TouchableOpacity
+                            style={styles.closeButton}
+                            onPress={() => setModalVisible(false)}
+                          >
+                            <Text style={styles.closeButtonText}>Close</Text>
+                          </TouchableOpacity>
+                        </ImageBackground>
                       </View>
-
-                      <TouchableOpacity
-                        style={styles.closeButton}
-                        onPress={() => setModalVisible(false)}
-                      >
-                        <Text style={styles.closeButtonText}>Close</Text>
-                      </TouchableOpacity>
-                    </View>
-                  )}
+                    )}
                 </View>
               </Modal>
 
