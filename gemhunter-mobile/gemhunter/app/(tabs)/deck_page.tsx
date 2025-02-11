@@ -90,7 +90,10 @@ const DeckPage = () => {
 
   const renderItem = ({ item }: { item: Attraction }) => (
     <View style={styles.deckItem}>
-      <TouchableOpacity style={styles.deckSlot} onPress={() => handleCardClick(item)}>
+      <TouchableOpacity
+        style={item.isGem === 0 ? styles.deckSlot : styles.deckSlotGem}
+        onPress={() => handleCardClick(item)}
+      >
         <ImageBackground
           source={imageMapping[item.icon as keyof typeof imageMapping]}
           style={styles.cardImage}
@@ -334,6 +337,16 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderRadius: 100,
     overflow: "hidden",
+  },
+  deckSlotGem: {
+    width: 110,
+    height: 110,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 4,
+    borderRadius: 100,
+    overflow: "hidden",
+    borderColor: "#42db71",
   },
   cardImage: {
     width: "100%",
