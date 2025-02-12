@@ -53,6 +53,10 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
     "granmadre_icon.jpg": require("../assets/images/granmadre_icon.jpg"),
     "innamorati_icon.jpg": require("../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../assets/images/testa_icon.jpg"),
+    "piazza-san-carlo.jpg": require("../assets/images/piazza-san-carlo.jpg"),
+    "fetta-polenta.jpg": require("../assets/images/fetta-polenta.jpg"),
+    "portone-melograno.jpg": require("../assets/images/portone-melograno.jpg"),
+    "monumento-vittorio.jpg": require("../assets/images/monumento-vittorio.jpg"),
   };
 
   const FAKE_COORDS = [{ latitude: 45.0505366, longitude: 7.6812146 }];

@@ -43,6 +43,10 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
     "granmadre_icon.jpg": require("../assets/images/granmadre_icon.jpg"),
     "innamorati_icon.jpg": require("../assets/images/innamorati_icon.jpg"),
     "testa_icon.jpg": require("../assets/images/testa_icon.jpg"),
+    "piazza-san-carlo.jpg": require("../assets/images/piazza-san-carlo.jpg"),
+    "fetta-polenta.jpg": require("../assets/images/fetta-polenta.jpg"),
+    "portone-melograno.jpg": require("../assets/images/portone-melograno.jpg"),
+    "monumento-vittorio.jpg": require("../assets/images/monumento-vittorio.jpg"),
   };
 
   const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {

@@ -58,6 +58,10 @@ export default function MainPage() {
     "testa_icon.jpg": require("../../assets/images/testa_icon.jpg"),
     "diavolo_icon.jpg": require("../../assets/images/diavolo_icon.jpg"),
     "piercing_icon.jpg": require("../../assets/images/piercing_icon.jpg"),
+    "piazza-san-carlo.jpg": require("../../assets/images/piazza-san-carlo.jpg"),
+    "fetta-polenta.jpg": require("../../assets/images/fetta-polenta.jpg"),
+    "portone-melograno.jpg": require("../../assets/images/portone-melograno.jpg"),
+    "monumento-vittorio.jpg": require("../../assets/images/monumento-vittorio.jpg"),
   };
 
   const [errors, setErrors] = useState({
