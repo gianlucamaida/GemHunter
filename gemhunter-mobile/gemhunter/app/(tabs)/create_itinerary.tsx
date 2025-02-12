@@ -40,16 +40,18 @@ export default function MainPage() {
   const [count, setCount] = useState(0);
   const router = useRouter();
   //da scegliere in base alla posizione delle attrazioni
-  const PATH1 = attractions.filter(
-    (attraction) =>
-      attraction.isGem !== 1 ||
-      (attraction.isFound === 1 && attraction.name !== "Panchina degli innamorati")
-  );
-  const PATH2 = attractions.filter((attraction) => attraction.isGem === 0);
-  const PATH3 = attractions.filter(
-    (attraction) => attraction.isGem === 1 && attraction.isFound === 1
-  );
 
+  const PATH2 = attractions.filter(
+    (attraction) =>
+      attraction.name === "Palazzo Madama" ||
+      attraction.name === "Mole Antonelliana" ||
+      attraction.name === "Gran Madre"
+  );
+  const PATH3 = attractions.filter(
+    (attraction) =>
+      attraction.name === "Portone del Diavolo" || attraction.name === "Testa capovolta di David"
+  );
+  const PATH1 = PATH2.concat(PATH3);
   const imageMapping = {
     "mole_icon.jpg": require("../../assets/images/mole_icon.jpg"),
     "madama_icon.jpg": require("../../assets/images/madama_icon.jpg"),
