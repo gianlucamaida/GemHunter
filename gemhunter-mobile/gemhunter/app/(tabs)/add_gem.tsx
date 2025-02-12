@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     backgroundColor: "black",
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 5,
+    borderRadius: 25,
   },
   okButtonText: {
     color: "white",
