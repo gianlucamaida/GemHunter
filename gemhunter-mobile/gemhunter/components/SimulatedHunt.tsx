@@ -36,6 +36,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
   const [completedStops, setCompletedStops] = useState(0);
   const [visitedPoints, setVisitedPoints] = useState<Set<number>>(new Set());
   const previousPosition = useRef(userLocation);
+  const apiKey = process.env.GOOGLE_API_KEY || "YOUR_DEFAULT_API_KEY";
 
   const imageMapping = {
     "mole_icon.jpg": require("../assets/images/mole_icon.jpg"),
@@ -203,7 +204,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
             latitude: itinerary[itinerary.length - 1].lat,
             longitude: itinerary[itinerary.length - 1].lon,
           }}
-          apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
+          apikey={apiKey}
           strokeWidth={2}
           strokeColor="#0039e6"
           mode="WALKING"

@@ -38,6 +38,7 @@ export default function MainPage() {
   const [itineraryState, setItineraryState] = useState<Attraction[] | null>(null);
   const [simulation, setSimulation] = useState(false);
   const [exitPressed, setExitPressed] = useState(false);
+  const apiKey = process.env.GOOGLE_API_KEY;
 
   const [huntMode, setHuntMode] = useState(false);
   const [showStartHuntButton, setShowStartHuntButton] = useState(true);
@@ -217,7 +218,7 @@ export default function MainPage() {
                   <React.Fragment key={attraction.id}>{renderMarker(attraction)}</React.Fragment>
                 ))}
 
-                {userLocation && itineraryState && (
+                {userLocation && itineraryState && apiKey && (
                   <MapViewDirections
                     origin={userLocation}
                     waypoints={parsedItinerary.map((attraction: Attraction) => ({
@@ -228,7 +229,7 @@ export default function MainPage() {
                       latitude: parsedItinerary[parsedItinerary.length - 1].lat,
                       longitude: parsedItinerary[parsedItinerary.length - 1].lon,
                     }}
-                    apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
+                    apikey={apiKey}
                     strokeWidth={2}
                     strokeColor="#0039e6"
                     mode="WALKING"

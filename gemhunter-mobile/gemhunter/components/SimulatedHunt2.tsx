@@ -58,6 +58,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
     "portone-melograno.jpg": require("../assets/images/portone-melograno.jpg"),
     "monumento-vittorio.jpg": require("../assets/images/monumento-vittorio.jpg"),
   };
+  const apiKey = process.env.GOOGLE_API_KEY || "YOUR_DEFAULT_API_KEY";
 
   const FAKE_COORDS = [{ latitude: 45.0505366, longitude: 7.6812146 }];
   useEffect(() => {
@@ -218,7 +219,7 @@ const SimulatedHunt: React.FC<SimulatedHuntProps> = ({
             latitude: itinerary[itinerary.length - 1].lat,
             longitude: itinerary[itinerary.length - 1].lon,
           }}
-          apikey={"AIzaSyAhvPXWl8KO2Bc9v3pTEraAID7cq6zMMFo"}
+          apikey={apiKey}
           strokeWidth={2}
           strokeColor="transparent"
           mode="WALKING"
